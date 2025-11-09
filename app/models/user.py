@@ -12,6 +12,7 @@ class User(UserMixin):
     
     def __init__(self, id=None, username=None, email=None, password_hash=None,
                  friend_code=None, full_name=None, bio=None, avatar='default.png', website=None,
+                 google_id=None, oauth_provider=None,
                  created_at=None, updated_at=None, **kwargs):
         self.id = id
         self.username = username
@@ -22,6 +23,8 @@ class User(UserMixin):
         self.bio = bio
         self.avatar = avatar
         self.website = website
+        self.google_id = google_id
+        self.oauth_provider = oauth_provider
         self.created_at = created_at
         self.updated_at = updated_at
         # is_active viene de UserMixin, ignoramos si viene de la BD
@@ -46,6 +49,26 @@ class User(UserMixin):
             VALUES (%s, %s, %s, %s, %s)
         """
         user_id = db.execute_query(query, (username, email, password_hash, friend_code, full_name))
+        return user_id
+    
+    @staticmethod
+    def create_with_google(google_id, email, full_name=None):
+        """Crear usuario con Google OAuth"""
+        # Generar username a partir del email
+        username = email.split('@')[0]
+        # Asegurar que sea único
+        base_username = username
+        counter = 1
+        while User.find_by_username(username):
+            username = f"{base_username}{counter}"
+            counter += 1
+        
+        friend_code = User.generate_friend_code()
+        query = """
+            INSERT INTO users (username, email, friend_code, full_name, google_id, oauth_provider)
+            VALUES (%s, %s, %s, %s, %s, 'google')
+        """
+        user_id = db.execute_query(query, (username, email, friend_code, full_name, google_id))
         return user_id
     
     @staticmethod
@@ -84,8 +107,20 @@ class User(UserMixin):
             return User(**row)
         return None
     
+    @staticmethod
+    def find_by_google_id(google_id):
+        """Buscar usuario por Google ID"""
+        query = "SELECT * FROM users WHERE google_id = %s"
+        row = db.fetch_one(query, (google_id,))
+        if row:
+            return User(**row)
+        return None
+    
     def check_password(self, password):
         """Verificar contraseña"""
+        # Si es usuario OAuth, no tiene contraseña
+        if not self.password_hash:
+            return False
         return check_password_hash(self.password_hash, password)
     
     def update(self, full_name=None, bio=None, website=None):
@@ -99,6 +134,17 @@ class User(UserMixin):
         self.full_name = full_name
         self.bio = bio
         self.website = website
+    
+    def link_google_account(self, google_id):
+        """Vincular cuenta existente con Google"""
+        query = """
+            UPDATE users 
+            SET google_id = %s, oauth_provider = 'google'
+            WHERE id = %s
+        """
+        db.execute_query(query, (google_id, self.id))
+        self.google_id = google_id
+        self.oauth_provider = 'google'
     
     def get_social_links(self):
         """Obtener enlaces a redes sociales"""

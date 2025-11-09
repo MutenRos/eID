@@ -1,28 +1,31 @@
 """Modelo de Enlaces a Redes Sociales - MySQL directo"""
 
+import json
 from app.database import db
 
 class SocialLink:
     """Enlaces a redes sociales del usuario"""
     
     @staticmethod
-    def create(user_id, platform, username, url, is_visible=True):
+    def create(user_id, platform, username, url, is_visible=True, profile_data=None):
         """Crear nuevo enlace"""
         query = """
-            INSERT INTO social_links (user_id, platform, username, url, is_visible)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO social_links (user_id, platform, username, url, is_visible, profile_data)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """
-        return db.execute_query(query, (user_id, platform, username, url, is_visible))
+        profile_json = json.dumps(profile_data) if profile_data else None
+        return db.execute_query(query, (user_id, platform, username, url, is_visible, profile_json))
     
     @staticmethod
-    def update(link_id, user_id, username, url, is_visible=True):
+    def update(link_id, user_id, username, url, is_visible=True, profile_data=None):
         """Actualizar enlace existente"""
         query = """
             UPDATE social_links 
-            SET username = %s, url = %s, is_visible = %s, updated_at = CURRENT_TIMESTAMP
+            SET username = %s, url = %s, is_visible = %s, profile_data = %s, updated_at = CURRENT_TIMESTAMP
             WHERE id = %s AND user_id = %s
         """
-        return db.execute_query(query, (username, url, is_visible, link_id, user_id))
+        profile_json = json.dumps(profile_data) if profile_data else None
+        return db.execute_query(query, (username, url, is_visible, profile_json, link_id, user_id))
     
     @staticmethod
     def get_by_platform(user_id, platform):

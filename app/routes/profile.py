@@ -12,11 +12,18 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 @login_required
 def my_profile():
     """Mi perfil"""
+    import json
     social_links = SocialLink.get_by_user(current_user.id)
     
     # Crear diccionario de links por plataforma para pre-llenar formularios
     links_dict = {}
     for link in social_links:
+        # Parsear profile_data si existe
+        if link.get('profile_data'):
+            try:
+                link['profile_data_parsed'] = json.loads(link['profile_data'])
+            except:
+                link['profile_data_parsed'] = None
         links_dict[link['platform']] = link
     
     return render_template('profile/view.html', user=current_user, social_links=social_links, links_dict=links_dict, is_own_profile=True)

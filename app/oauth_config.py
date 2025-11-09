@@ -3,7 +3,8 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Recargar variables de entorno
+load_dotenv(override=True)
 
 # Configuración de OAuth por plataforma
 OAUTH_CONFIGS = {
@@ -13,7 +14,7 @@ OAUTH_CONFIGS = {
         'authorize_url': 'https://accounts.google.com/o/oauth2/v2/auth',
         'token_url': 'https://oauth2.googleapis.com/token',
         'userinfo_url': 'https://www.googleapis.com/oauth2/v2/userinfo',
-        'scope': 'openid email profile',
+        'scope': 'openid email profile https://www.googleapis.com/auth/youtube.readonly',
         'platforms': ['YouTube']  # Google OAuth sirve para YouTube
     },
     'facebook': {
@@ -23,7 +24,16 @@ OAUTH_CONFIGS = {
         'token_url': 'https://graph.facebook.com/v18.0/oauth/access_token',
         'userinfo_url': 'https://graph.facebook.com/me',
         'scope': 'public_profile,email',
-        'platforms': ['Facebook', 'Instagram']  # Facebook OAuth sirve para ambos
+        'platforms': ['Facebook']
+    },
+    'instagram': {
+        'client_id': os.getenv('INSTAGRAM_APP_ID'),
+        'client_secret': os.getenv('INSTAGRAM_APP_SECRET'),
+        'authorize_url': 'https://api.instagram.com/oauth/authorize',
+        'token_url': 'https://api.instagram.com/oauth/access_token',
+        'userinfo_url': 'https://graph.instagram.com/me',
+        'scope': 'user_profile,user_media',
+        'platforms': ['Instagram']
     },
     'twitter': {
         'client_id': os.getenv('TWITTER_CLIENT_ID'),

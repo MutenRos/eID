@@ -79,13 +79,23 @@ def callback(platform):
     # Intercambiar código por token
     redirect_uri = url_for('oauth.callback', platform=platform, _external=True)
     
-    token_data = {
-        'client_id': config['client_id'],
-        'client_secret': config['client_secret'],
-        'code': code,
-        'redirect_uri': redirect_uri,
-        'grant_type': 'authorization_code'
-    }
+    # Instagram usa POST form-data en lugar de JSON
+    if provider == 'instagram':
+        token_data = {
+            'client_id': config['client_id'],
+            'client_secret': config['client_secret'],
+            'code': code,
+            'redirect_uri': redirect_uri,
+            'grant_type': 'authorization_code'
+        }
+    else:
+        token_data = {
+            'client_id': config['client_id'],
+            'client_secret': config['client_secret'],
+            'code': code,
+            'redirect_uri': redirect_uri,
+            'grant_type': 'authorization_code'
+        }
     
     try:
         # Obtener access token
@@ -105,7 +115,7 @@ def callback(platform):
         user_info = user_response.json()
         
         # Extraer datos según la plataforma
-        username, profile_url = extract_platform_data(platform, provider, user_info, access_token)
+        username, profile_url, profile_data = extract_platform_data(platform, provider, user_info, access_token)
         
         if not username or not profile_url:
             flash(f'No se pudo obtener tu información de {platform}', 'error')
@@ -115,10 +125,10 @@ def callback(platform):
         existing = SocialLink.get_by_platform(current_user.id, platform)
         
         if existing:
-            SocialLink.update(existing['id'], current_user.id, username, profile_url, True)
+            SocialLink.update(existing['id'], current_user.id, username, profile_url, True, profile_data)
             flash(f'✅ {platform} actualizado correctamente: @{username}', 'success')
         else:
-            SocialLink.create(current_user.id, platform, username, profile_url, True)
+            SocialLink.create(current_user.id, platform, username, profile_url, True, profile_data)
             flash(f'✅ {platform} conectado correctamente: @{username}', 'success')
         
         # Limpiar session
@@ -132,18 +142,29 @@ def callback(platform):
         return redirect(url_for('profile.my_profile'))
 
 def extract_platform_data(platform, provider, user_info, access_token):
-    """Extraer username y URL según la plataforma"""
+    """Extraer username, URL y datos del perfil según la plataforma"""
     username = None
     profile_url = None
+    profile_data = None
     
     if provider == 'google':
-        # Para YouTube
-        username = user_info.get('name') or user_info.get('email').split('@')[0]
-        # Necesitaríamos hacer otra llamada a YouTube API para obtener el canal
-        channel_id = get_youtube_channel_id(access_token)
-        if channel_id:
-            profile_url = f'https://youtube.com/channel/{channel_id}'
+        # Para YouTube - obtener info real del canal
+        youtube_data = get_youtube_channel_info(access_token)
+        if youtube_data:
+            username = youtube_data['username']
+            profile_url = youtube_data['url']
+            profile_data = {
+                'title': youtube_data['title'],
+                'description': youtube_data['description'],
+                'avatar': youtube_data['avatar'],
+                'subscribers': youtube_data['subscribers'],
+                'videos': youtube_data['videos'],
+                'views': youtube_data['views'],
+                'channel_id': youtube_data['channel_id']
+            }
         else:
+            # Fallback si no hay canal de YouTube
+            username = user_info.get('name') or user_info.get('email').split('@')[0]
             profile_url = f'https://youtube.com/@{username}'
     
     elif provider == 'facebook':
@@ -174,22 +195,108 @@ def extract_platform_data(platform, provider, user_info, access_token):
         unique_id = data.get('unique_id')
         profile_url = f'https://tiktok.com/@{unique_id}'
     
-    return username, profile_url
+    elif provider == 'instagram':
+        # Instagram Basic Display API
+        instagram_data = get_instagram_profile_info(access_token)
+        if instagram_data:
+            username = instagram_data.get('username')
+            profile_url = f'https://instagram.com/{username}'
+            profile_data = instagram_data
+    
+    return username, profile_url, profile_data
 
-def get_youtube_channel_id(access_token):
-    """Obtener ID del canal de YouTube"""
+def get_youtube_channel_info(access_token):
+    """Obtener información completa del canal de YouTube"""
     try:
         headers = {'Authorization': f'Bearer {access_token}'}
         response = requests.get(
             'https://www.googleapis.com/youtube/v3/channels',
             headers=headers,
-            params={'part': 'id', 'mine': 'true'}
+            params={
+                'part': 'snippet,statistics,brandingSettings',
+                'mine': 'true'
+            }
         )
         response.raise_for_status()
         data = response.json()
+        
         items = data.get('items', [])
         if items:
-            return items[0]['id']
-    except:
+            channel = items[0]
+            channel_id = channel['id']
+            snippet = channel['snippet']
+            statistics = channel.get('statistics', {})
+            
+            # Obtener custom URL si existe
+            custom_url = snippet.get('customUrl', '')
+            title = snippet.get('title', '')
+            description = snippet.get('description', '')
+            
+            # Avatar (thumbnail)
+            thumbnails = snippet.get('thumbnails', {})
+            avatar = thumbnails.get('high', {}).get('url', thumbnails.get('default', {}).get('url', ''))
+            
+            # Estadísticas
+            subscriber_count = statistics.get('subscriberCount', '0')
+            video_count = statistics.get('videoCount', '0')
+            view_count = statistics.get('viewCount', '0')
+            
+            if custom_url:
+                # Tiene URL personalizada (ej: @NombreCanal)
+                if custom_url.startswith('@'):
+                    url = f'https://youtube.com/{custom_url}'
+                else:
+                    url = f'https://youtube.com/@{custom_url}'
+                username = custom_url.replace('@', '')
+            else:
+                # No tiene URL personalizada, usar ID del canal
+                url = f'https://youtube.com/channel/{channel_id}'
+                username = title
+            
+            return {
+                'username': username,
+                'url': url,
+                'channel_id': channel_id,
+                'title': title,
+                'description': description,
+                'avatar': avatar,
+                'subscribers': subscriber_count,
+                'videos': video_count,
+                'views': view_count
+            }
+    except Exception as e:
+        print(f"Error obteniendo info de YouTube: {e}")
         pass
+    
     return None
+
+def get_instagram_profile_info(access_token):
+    """Obtener información del perfil de Instagram"""
+    try:
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get(
+            'https://graph.instagram.com/me',
+            headers=headers,
+            params={
+                'fields': 'id,username,account_type,media_count'
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        
+        return {
+            'username': data.get('username'),
+            'account_type': data.get('account_type'),
+            'media_count': data.get('media_count', 0),
+            'instagram_id': data.get('id')
+        }
+    except Exception as e:
+        print(f"Error obteniendo info de Instagram: {e}")
+        pass
+    
+    return None
+
+def get_youtube_channel_id(access_token):
+    """Obtener ID del canal de YouTube (deprecated - usar get_youtube_channel_info)"""
+    info = get_youtube_channel_info(access_token)
+    return info['channel_id'] if info else None

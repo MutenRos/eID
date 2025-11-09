@@ -61,7 +61,9 @@ def create_database():
                     icon VARCHAR(50),
                     is_visible BOOLEAN DEFAULT TRUE,
                     display_order INT DEFAULT 0,
+                    profile_data JSON,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                     INDEX idx_user_id (user_id)
                 ) ENGINE=InnoDB
