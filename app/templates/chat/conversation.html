@@ -18,7 +18,7 @@
                         {{ msg.content }}
                     </div>
                     <small class="message-time">
-                        {{ msg.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        {{ msg.created_at.strftime('%d/%m/%Y %H:%M') if msg.created_at else '' }}
                         {% if msg.sender_id == current_user.id and msg.is_read %}
                             ✓✓
                         {% endif %}

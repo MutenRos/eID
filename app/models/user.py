@@ -1,45 +1,89 @@
-"""Modelo de Usuario"""
+"""Modelo de Usuario - MySQL directo"""
 
-from app import db, login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from app.database import db
+from app import login_manager
 
-class User(UserMixin, db.Model):
+class User(UserMixin):
     """Usuario del sistema eID"""
     
-    __tablename__ = 'users'
+    def __init__(self, id=None, username=None, email=None, password_hash=None,
+                 full_name=None, bio=None, avatar='default.png', website=None,
+                 created_at=None, is_active=True):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.password_hash = password_hash
+        self.full_name = full_name
+        self.bio = bio
+        self.avatar = avatar
+        self.website = website
+        self.created_at = created_at
+        self.is_active = is_active
     
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(200), nullable=False)
+    @staticmethod
+    def create(username, email, password, full_name=None):
+        """Crear nuevo usuario"""
+        password_hash = generate_password_hash(password)
+        query = """
+            INSERT INTO users (username, email, password_hash, full_name)
+            VALUES (%s, %s, %s, %s)
+        """
+        user_id = db.execute_query(query, (username, email, password_hash, full_name))
+        return user_id
     
-    # Datos del perfil
-    full_name = db.Column(db.String(100))
-    bio = db.Column(db.Text)
-    avatar = db.Column(db.String(200), default='default.png')
-    website = db.Column(db.String(200))
+    @staticmethod
+    def find_by_id(user_id):
+        """Buscar usuario por ID"""
+        query = "SELECT * FROM users WHERE id = %s"
+        row = db.fetch_one(query, (user_id,))
+        if row:
+            return User(**row)
+        return None
     
-    # Metadatos
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = db.Column(db.Boolean, default=True)
+    @staticmethod
+    def find_by_username(username):
+        """Buscar usuario por username"""
+        query = "SELECT * FROM users WHERE username = %s"
+        row = db.fetch_one(query, (username,))
+        if row:
+            return User(**row)
+        return None
     
-    # Relaciones
-    social_links = db.relationship('SocialLink', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    contacts_sent = db.relationship('Contact', foreign_keys='Contact.user_id', backref='user', lazy='dynamic')
-    contacts_received = db.relationship('Contact', foreign_keys='Contact.contact_id', backref='contact', lazy='dynamic')
-    messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy='dynamic')
-    messages_received = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy='dynamic')
-    
-    def set_password(self, password):
-        """Hashear contraseña"""
-        self.password_hash = generate_password_hash(password)
+    @staticmethod
+    def find_by_email(email):
+        """Buscar usuario por email"""
+        query = "SELECT * FROM users WHERE email = %s"
+        row = db.fetch_one(query, (email,))
+        if row:
+            return User(**row)
+        return None
     
     def check_password(self, password):
         """Verificar contraseña"""
         return check_password_hash(self.password_hash, password)
+    
+    def update(self, full_name=None, bio=None, website=None):
+        """Actualizar perfil"""
+        query = """
+            UPDATE users 
+            SET full_name = %s, bio = %s, website = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        """
+        db.execute_query(query, (full_name, bio, website, self.id))
+        self.full_name = full_name
+        self.bio = bio
+        self.website = website
+    
+    def get_social_links(self):
+        """Obtener enlaces a redes sociales"""
+        query = """
+            SELECT * FROM social_links 
+            WHERE user_id = %s AND is_visible = TRUE
+            ORDER BY display_order
+        """
+        return db.fetch_all(query, (self.id,))
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -47,4 +91,4 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     """Cargar usuario para Flask-Login"""
-    return User.query.get(int(user_id))
+    return User.find_by_id(int(user_id))

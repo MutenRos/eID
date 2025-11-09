@@ -2,7 +2,6 @@
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required
-from app import db
 from app.models.user import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -16,22 +15,23 @@ def register():
         password = request.form.get('password')
         
         # Validaciones
-        if User.query.filter_by(username=username).first():
+        if User.find_by_username(username):
             flash('El nombre de usuario ya existe', 'error')
             return redirect(url_for('auth.register'))
         
-        if User.query.filter_by(email=email).first():
+        if User.find_by_email(email):
             flash('El email ya está registrado', 'error')
             return redirect(url_for('auth.register'))
         
         # Crear usuario
-        user = User(username=username, email=email)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+        user_id = User.create(username, email, password)
         
-        flash('Registro exitoso. Ya puedes iniciar sesión', 'success')
-        return redirect(url_for('auth.login'))
+        if user_id:
+            flash('Registro exitoso. Ya puedes iniciar sesión', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('Error al crear el usuario', 'error')
+            return redirect(url_for('auth.register'))
     
     return render_template('auth/register.html')
 
@@ -42,7 +42,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        user = User.query.filter_by(username=username).first()
+        user = User.find_by_username(username)
         
         if user and user.check_password(password):
             login_user(user)

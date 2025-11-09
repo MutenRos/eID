@@ -2,9 +2,9 @@
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from app import db
 from app.models.user import User
 from app.models.contact import Contact
+from app.database import db
 
 bp = Blueprint('contacts', __name__, url_prefix='/contacts')
 
@@ -12,20 +12,9 @@ bp = Blueprint('contacts', __name__, url_prefix='/contacts')
 @login_required
 def index():
     """Lista de contactos"""
-    contacts = Contact.query.filter_by(
-        user_id=current_user.id,
-        status='accepted'
-    ).all()
-    
-    pending_sent = Contact.query.filter_by(
-        user_id=current_user.id,
-        status='pending'
-    ).all()
-    
-    pending_received = Contact.query.filter_by(
-        contact_id=current_user.id,
-        status='pending'
-    ).all()
+    contacts = Contact.get_accepted(current_user.id)
+    pending_sent = Contact.get_pending_sent(current_user.id)
+    pending_received = Contact.get_pending_received(current_user.id)
     
     return render_template('contacts/index.html',
                          contacts=contacts,
@@ -41,19 +30,11 @@ def add(user_id):
         return redirect(url_for('contacts.index'))
     
     # Verificar si ya existe la relación
-    existing = Contact.query.filter_by(
-        user_id=current_user.id,
-        contact_id=user_id
-    ).first()
-    
-    if existing:
+    if Contact.exists(current_user.id, user_id):
         flash('Ya existe una solicitud con este usuario', 'error')
         return redirect(url_for('contacts.index'))
     
-    contact = Contact(user_id=current_user.id, contact_id=user_id)
-    db.session.add(contact)
-    db.session.commit()
-    
+    Contact.create(current_user.id, user_id)
     flash('Solicitud de contacto enviada', 'success')
     return redirect(url_for('contacts.index'))
 
@@ -61,15 +42,7 @@ def add(user_id):
 @login_required
 def accept(contact_id):
     """Aceptar solicitud de contacto"""
-    contact = Contact.query.get_or_404(contact_id)
-    
-    if contact.contact_id != current_user.id:
-        flash('No autorizado', 'error')
-        return redirect(url_for('contacts.index'))
-    
-    contact.status = 'accepted'
-    db.session.commit()
-    
+    Contact.accept(contact_id, current_user.id)
     flash('Contacto aceptado', 'success')
     return redirect(url_for('contacts.index'))
 
@@ -77,15 +50,7 @@ def accept(contact_id):
 @login_required
 def reject(contact_id):
     """Rechazar solicitud de contacto"""
-    contact = Contact.query.get_or_404(contact_id)
-    
-    if contact.contact_id != current_user.id:
-        flash('No autorizado', 'error')
-        return redirect(url_for('contacts.index'))
-    
-    db.session.delete(contact)
-    db.session.commit()
-    
+    Contact.reject(contact_id, current_user.id)
     flash('Solicitud rechazada', 'success')
     return redirect(url_for('contacts.index'))
 
@@ -98,14 +63,14 @@ def search():
     if len(query) < 2:
         return jsonify([])
     
-    users = User.query.filter(
-        (User.username.like(f'%{query}%')) |
-        (User.full_name.like(f'%{query}%'))
-    ).filter(User.id != current_user.id).limit(10).all()
+    sql = """
+        SELECT id, username, full_name, avatar
+        FROM users
+        WHERE (username LIKE %s OR full_name LIKE %s)
+          AND id != %s
+        LIMIT 10
+    """
+    search_term = f'%{query}%'
+    users = db.fetch_all(sql, (search_term, search_term, current_user.id))
     
-    return jsonify([{
-        'id': u.id,
-        'username': u.username,
-        'full_name': u.full_name,
-        'avatar': u.avatar
-    } for u in users])
+    return jsonify(users)

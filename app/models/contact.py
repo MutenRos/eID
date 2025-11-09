@@ -1,28 +1,91 @@
-"""Modelo de Contactos/Agenda"""
+"""Modelo de Contactos/Agenda - MySQL directo"""
 
-from app import db
-from datetime import datetime
+from app.database import db
 
-class Contact(db.Model):
+class Contact:
     """Relación de contactos entre usuarios"""
     
-    __tablename__ = 'contacts'
+    @staticmethod
+    def create(user_id, contact_id):
+        """Crear solicitud de contacto"""
+        query = """
+            INSERT INTO contacts (user_id, contact_id, status)
+            VALUES (%s, %s, 'pending')
+        """
+        return db.execute_query(query, (user_id, contact_id))
     
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    contact_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    @staticmethod
+    def exists(user_id, contact_id):
+        """Verificar si ya existe la relación"""
+        query = """
+            SELECT id FROM contacts 
+            WHERE (user_id = %s AND contact_id = %s) 
+               OR (user_id = %s AND contact_id = %s)
+        """
+        return db.fetch_one(query, (user_id, contact_id, contact_id, user_id))
     
-    # Estado de la relación
-    status = db.Column(db.String(20), default='pending')  # pending, accepted, blocked
+    @staticmethod
+    def get_accepted(user_id):
+        """Obtener contactos aceptados"""
+        query = """
+            SELECT c.*, u.username, u.full_name, u.avatar
+            FROM contacts c
+            JOIN users u ON (
+                CASE 
+                    WHEN c.user_id = %s THEN u.id = c.contact_id
+                    ELSE u.id = c.user_id
+                END
+            )
+            WHERE (c.user_id = %s OR c.contact_id = %s) 
+              AND c.status = 'accepted'
+        """
+        return db.fetch_all(query, (user_id, user_id, user_id))
     
-    # Metadatos
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    accepted_at = db.Column(db.DateTime)
+    @staticmethod
+    def get_pending_sent(user_id):
+        """Obtener solicitudes enviadas pendientes"""
+        query = """
+            SELECT c.*, u.username, u.full_name
+            FROM contacts c
+            JOIN users u ON u.id = c.contact_id
+            WHERE c.user_id = %s AND c.status = 'pending'
+        """
+        return db.fetch_all(query, (user_id,))
     
-    # Constraints
-    __table_args__ = (
-        db.UniqueConstraint('user_id', 'contact_id', name='unique_contact'),
-    )
+    @staticmethod
+    def get_pending_received(user_id):
+        """Obtener solicitudes recibidas pendientes"""
+        query = """
+            SELECT c.*, u.username, u.full_name
+            FROM contacts c
+            JOIN users u ON u.id = c.user_id
+            WHERE c.contact_id = %s AND c.status = 'pending'
+        """
+        return db.fetch_all(query, (user_id,))
     
-    def __repr__(self):
-        return f'<Contact {self.user_id} -> {self.contact_id} [{self.status}]>'
+    @staticmethod
+    def accept(contact_id, user_id):
+        """Aceptar solicitud de contacto"""
+        query = """
+            UPDATE contacts 
+            SET status = 'accepted', accepted_at = CURRENT_TIMESTAMP
+            WHERE id = %s AND contact_id = %s
+        """
+        return db.execute_query(query, (contact_id, user_id))
+    
+    @staticmethod
+    def reject(contact_id, user_id):
+        """Rechazar/eliminar solicitud"""
+        query = "DELETE FROM contacts WHERE id = %s AND contact_id = %s"
+        return db.execute_query(query, (contact_id, user_id))
+    
+    @staticmethod
+    def are_contacts(user1_id, user2_id):
+        """Verificar si dos usuarios son contactos"""
+        query = """
+            SELECT id FROM contacts 
+            WHERE ((user_id = %s AND contact_id = %s) 
+               OR (user_id = %s AND contact_id = %s))
+              AND status = 'accepted'
+        """
+        return db.fetch_one(query, (user1_id, user2_id, user2_id, user1_id))

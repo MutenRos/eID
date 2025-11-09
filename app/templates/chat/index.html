@@ -10,17 +10,11 @@
         {% if contacts %}
             <div class="grid grid-3">
                 {% for contact in contacts %}
-                    {% if contact.user_id == current_user.id %}
-                        {% set other_user = contact.contact %}
-                    {% else %}
-                        {% set other_user = contact.user %}
-                    {% endif %}
-                    
-                    <a href="{{ url_for('chat.conversation', user_id=other_user.id) }}" 
+                    <a href="{{ url_for('chat.conversation', user_id=contact.id) }}" 
                        class="chat-contact-card">
-                        <strong>@{{ other_user.username }}</strong>
-                        {% if other_user.full_name %}
-                            <br><small>{{ other_user.full_name }}</small>
+                        <strong>@{{ contact.username }}</strong>
+                        {% if contact.full_name %}
+                            <br><small>{{ contact.full_name }}</small>
                         {% endif %}
                     </a>
                 {% endfor %}

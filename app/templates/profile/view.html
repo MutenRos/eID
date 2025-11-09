@@ -7,7 +7,7 @@
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h1>@{{ user.username }}</h1>
-            {% if current_user.id == user.id %}
+            {% if current_user.is_authenticated and current_user.id == user.id %}
                 <a href="{{ url_for('profile.edit') }}" class="btn btn-secondary">Editar perfil</a>
             {% endif %}
         </div>
@@ -25,12 +25,12 @@
         {% endif %}
     </div>
     
-    {% if user.social_links.count() > 0 %}
+    {% if social_links %}
     <div class="card">
         <h2>Redes Sociales</h2>
         
         <div class="grid grid-3">
-            {% for link in user.social_links.filter_by(is_visible=True).order_by('order') %}
+            {% for link in social_links %}
             <a href="{{ link.url }}" target="_blank" class="social-link-card">
                 <strong>{{ link.platform }}</strong>
                 <br>@{{ link.username }}
@@ -38,7 +38,7 @@
             {% endfor %}
         </div>
         
-        {% if current_user.id == user.id %}
+        {% if current_user.is_authenticated and current_user.id == user.id %}
             <a href="{{ url_for('profile.social_links') }}" class="btn btn-secondary" style="margin-top: 1rem;">
                 Gestionar redes sociales
             </a>

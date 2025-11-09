@@ -1,27 +1,41 @@
-"""Modelo de Enlaces a Redes Sociales"""
+"""Modelo de Enlaces a Redes Sociales - MySQL directo"""
 
-from app import db
-from datetime import datetime
+from app.database import db
 
-class SocialLink(db.Model):
+class SocialLink:
     """Enlaces a redes sociales del usuario"""
     
-    __tablename__ = 'social_links'
+    @staticmethod
+    def create(user_id, platform, username, url, icon=None):
+        """Crear nuevo enlace"""
+        query = """
+            INSERT INTO social_links (user_id, platform, username, url, icon)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        return db.execute_query(query, (user_id, platform, username, url, icon))
     
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    @staticmethod
+    def get_by_user(user_id):
+        """Obtener todos los enlaces de un usuario"""
+        query = """
+            SELECT * FROM social_links 
+            WHERE user_id = %s 
+            ORDER BY display_order
+        """
+        return db.fetch_all(query, (user_id,))
     
-    # Datos de la red social
-    platform = db.Column(db.String(50), nullable=False)  # twitter, instagram, linkedin, github, etc
-    username = db.Column(db.String(100), nullable=False)
-    url = db.Column(db.String(500), nullable=False)
-    icon = db.Column(db.String(50))  # Clase CSS del icono
+    @staticmethod
+    def get_visible_by_user(user_id):
+        """Obtener enlaces visibles de un usuario"""
+        query = """
+            SELECT * FROM social_links 
+            WHERE user_id = %s AND is_visible = TRUE
+            ORDER BY display_order
+        """
+        return db.fetch_all(query, (user_id,))
     
-    # Configuración
-    is_visible = db.Column(db.Boolean, default=True)
-    order = db.Column(db.Integer, default=0)
-    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<SocialLink {self.platform}: {self.username}>'
+    @staticmethod
+    def delete(link_id, user_id):
+        """Eliminar enlace (solo si pertenece al usuario)"""
+        query = "DELETE FROM social_links WHERE id = %s AND user_id = %s"
+        return db.execute_query(query, (link_id, user_id))

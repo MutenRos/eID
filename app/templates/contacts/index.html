@@ -23,9 +23,9 @@
             {% for contact in pending_received %}
             <div class="contact-request">
                 <div>
-                    <strong>@{{ contact.user.username }}</strong>
-                    {% if contact.user.full_name %}
-                        <br>{{ contact.user.full_name }}
+                    <strong>@{{ contact.username }}</strong>
+                    {% if contact.full_name %}
+                        <br>{{ contact.full_name }}
                     {% endif %}
                 </div>
                 
@@ -50,18 +50,17 @@
         
         <div class="grid grid-3">
             {% for contact in contacts %}
-                {% set other_user = contact.contact %}
                 <div class="contact-card">
-                    <strong>@{{ other_user.username }}</strong>
-                    {% if other_user.full_name %}
-                        <br>{{ other_user.full_name }}
+                    <strong>@{{ contact.username }}</strong>
+                    {% if contact.full_name %}
+                        <br>{{ contact.full_name }}
                     {% endif %}
                     <br>
-                    <a href="{{ url_for('profile.view_profile', username=other_user.username) }}">
+                    <a href="{{ url_for('profile.view_profile', username=contact.username) }}">
                         Ver perfil
                     </a>
                     |
-                    <a href="{{ url_for('chat.conversation', user_id=other_user.id) }}">
+                    <a href="{{ url_for('chat.conversation', user_id=contact.id) }}">
                         Chatear
                     </a>
                 </div>
@@ -76,11 +75,10 @@
         
         <div class="grid grid-3">
             {% for contact in pending_sent %}
-                {% set other_user = contact.contact %}
                 <div class="contact-card" style="opacity: 0.6;">
-                    <strong>@{{ other_user.username }}</strong>
-                    {% if other_user.full_name %}
-                        <br>{{ other_user.full_name }}
+                    <strong>@{{ contact.username }}</strong>
+                    {% if contact.full_name %}
+                        <br>{{ contact.full_name }}
                     {% endif %}
                     <br><small>Pendiente de aceptación</small>
                 </div>
