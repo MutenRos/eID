@@ -4,15 +4,48 @@
 
 {% block content %}
 <div class="container">
+    <!-- Tu código de amigo -->
+    <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+        <h1 style="color: white;">🔐 Tu Código de Amigo</h1>
+        <div style="background: rgba(255,255,255,0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
+            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 0.3rem; text-align: center; font-family: 'Courier New', monospace;">
+                {{ friend_code }}
+            </div>
+        </div>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 1rem;">
+            📱 Comparte este código con tus amigos para que puedan agregarte
+        </p>
+        <button onclick="copyFriendCode()" class="btn" style="background: white; color: var(--primary); margin-top: 1rem;">
+            📋 Copiar código
+        </button>
+    </div>
+    
+    <!-- Agregar contacto por código -->
     <div class="card">
-        <h1>Mis Contactos</h1>
+        <h2>➕ Agregar Nuevo Contacto</h2>
+        <p style="color: var(--gray); margin-bottom: 1.5rem;">
+            Ingresa el código de amigo de la persona que quieres agregar
+        </p>
         
-        <h2>Buscar usuarios</h2>
-        <input type="text" id="search-input" class="form-control" 
-               placeholder="Buscar por nombre o usuario..." 
-               oninput="searchUsers(this.value)">
-        
-        <div id="search-results" style="margin-top: 1rem;"></div>
+        <form method="POST" action="{{ url_for('contacts.add') }}">
+            <div style="display: flex; gap: 1rem; align-items: end;">
+                <div class="form-group" style="flex: 1; margin: 0;">
+                    <label for="friend_code">Código de Amigo</label>
+                    <input type="text" 
+                           id="friend_code" 
+                           name="friend_code" 
+                           class="form-control" 
+                           placeholder="Ej: ABC123XY" 
+                           maxlength="12"
+                           pattern="[A-Z0-9]+"
+                           style="text-transform: uppercase; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 0.1rem;"
+                           required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="height: fit-content;">
+                    Enviar Solicitud
+                </button>
+            </div>
+        </form>
     </div>
     
     {% if pending_received %}
@@ -56,12 +89,8 @@
                         <br>{{ contact.full_name }}
                     {% endif %}
                     <br>
-                    <a href="{{ url_for('profile.view_profile', username=contact.username) }}">
-                        Ver perfil
-                    </a>
-                    |
                     <a href="{{ url_for('chat.conversation', user_id=contact.id) }}">
-                        Chatear
+                        💬 Chatear
                     </a>
                 </div>
             {% endfor %}
@@ -113,21 +142,23 @@
 .contact-card a:hover {
     text-decoration: underline;
 }
-
-.user-result {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--gray-light);
-    border-radius: 10px;
-    margin-bottom: 0.5rem;
-}
-
-.user-result img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
 </style>
+
+<script>
+function copyFriendCode() {
+    const code = "{{ friend_code }}";
+    navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Código copiado: ' + code);
+    }).catch(() => {
+        // Fallback para navegadores antiguos
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('✅ Código copiado: ' + code);
+    });
+}
+</script>
 {% endblock %}

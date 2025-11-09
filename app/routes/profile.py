@@ -12,18 +12,7 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 def my_profile():
     """Mi perfil"""
     social_links = SocialLink.get_by_user(current_user.id)
-    return render_template('profile/view.html', user=current_user, social_links=social_links)
-
-@bp.route('/<username>')
-def view_profile(username):
-    """Ver perfil de otro usuario"""
-    user = User.find_by_username(username)
-    if not user:
-        flash('Usuario no encontrado', 'error')
-        return redirect(url_for('main.index'))
-    
-    social_links = SocialLink.get_visible_by_user(user.id)
-    return render_template('profile/view.html', user=user, social_links=social_links)
+    return render_template('profile/view.html', user=current_user, social_links=social_links, is_own_profile=True)
 
 @bp.route('/edit', methods=['GET', 'POST'])
 @login_required

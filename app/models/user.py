@@ -4,17 +4,20 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import db
 from app import login_manager
+import secrets
+import string
 
 class User(UserMixin):
     """Usuario del sistema eID"""
     
     def __init__(self, id=None, username=None, email=None, password_hash=None,
-                 full_name=None, bio=None, avatar='default.png', website=None,
+                 friend_code=None, full_name=None, bio=None, avatar='default.png', website=None,
                  created_at=None, updated_at=None, **kwargs):
         self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
+        self.friend_code = friend_code
         self.full_name = full_name
         self.bio = bio
         self.avatar = avatar
@@ -24,14 +27,25 @@ class User(UserMixin):
         # is_active viene de UserMixin, ignoramos si viene de la BD
     
     @staticmethod
+    def generate_friend_code():
+        """Generar código de amigo único (8 caracteres)"""
+        while True:
+            chars = string.ascii_uppercase + string.digits
+            code = ''.join(secrets.choice(chars) for _ in range(8))
+            # Verificar que sea único
+            if not User.find_by_friend_code(code):
+                return code
+    
+    @staticmethod
     def create(username, email, password, full_name=None):
         """Crear nuevo usuario"""
         password_hash = generate_password_hash(password)
+        friend_code = User.generate_friend_code()
         query = """
-            INSERT INTO users (username, email, password_hash, full_name)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO users (username, email, password_hash, friend_code, full_name)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        user_id = db.execute_query(query, (username, email, password_hash, full_name))
+        user_id = db.execute_query(query, (username, email, password_hash, friend_code, full_name))
         return user_id
     
     @staticmethod
@@ -57,6 +71,15 @@ class User(UserMixin):
         """Buscar usuario por email"""
         query = "SELECT * FROM users WHERE email = %s"
         row = db.fetch_one(query, (email,))
+        if row:
+            return User(**row)
+        return None
+    
+    @staticmethod
+    def find_by_friend_code(friend_code):
+        """Buscar usuario por código de amigo"""
+        query = "SELECT * FROM users WHERE friend_code = %s"
+        row = db.fetch_one(query, (friend_code,))
         if row:
             return User(**row)
         return None

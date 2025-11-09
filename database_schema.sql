@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(80) NOT NULL UNIQUE,
     email VARCHAR(120) NOT NULL UNIQUE,
     password_hash VARCHAR(200) NOT NULL,
+    friend_code VARCHAR(12) NOT NULL UNIQUE,
     full_name VARCHAR(100),
     bio TEXT,
     avatar VARCHAR(200) DEFAULT 'default.png',
@@ -18,7 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
     INDEX idx_username (username),
-    INDEX idx_email (email)
+    INDEX idx_email (email),
+    INDEX idx_friend_code (friend_code)
 ) ENGINE=InnoDB;
 
 -- Tabla de enlaces a redes sociales
