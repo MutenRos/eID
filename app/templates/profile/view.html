@@ -114,6 +114,20 @@
             
             <div class="tab-content" id="tab-facebook">
                 <h3>📘 Facebook</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='Facebook') }}" class="btn btn-primary" style="background: #1877F2; padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con Facebook
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu perfil de Facebook con un solo clic
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="Facebook">
                     
@@ -147,6 +161,20 @@
             
             <div class="tab-content" id="tab-instagram">
                 <h3>📷 Instagram</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='Instagram') }}" class="btn btn-primary" style="background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF); padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con Instagram
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu perfil de Instagram con un solo clic
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="Instagram">
                     
@@ -180,6 +208,20 @@
             
             <div class="tab-content" id="tab-linkedin">
                 <h3>💼 LinkedIn</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='LinkedIn') }}" class="btn btn-primary" style="background: #0A66C2; padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con LinkedIn
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu perfil profesional de LinkedIn
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="LinkedIn">
                     
@@ -213,6 +255,20 @@
             
             <div class="tab-content" id="tab-x">
                 <h3>✖️ X (Twitter)</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='X') }}" class="btn btn-primary" style="background: #000000; padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con X
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu cuenta de X (Twitter)
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="X">
                     
@@ -246,6 +302,20 @@
             
             <div class="tab-content" id="tab-tiktok">
                 <h3>🎵 TikTok</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='TikTok') }}" class="btn btn-primary" style="background: #000000; padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con TikTok
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu cuenta de TikTok
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="TikTok">
                     
@@ -279,6 +349,20 @@
             
             <div class="tab-content" id="tab-youtube">
                 <h3>📺 YouTube</h3>
+                
+                <!-- Botón OAuth -->
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <a href="{{ url_for('oauth.connect', platform='YouTube') }}" class="btn btn-primary" style="background: #FF0000; padding: 1rem 2rem; font-size: 1.1rem;">
+                        🔗 Conectar con YouTube
+                    </a>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem;">
+                        Autoriza el acceso a tu canal de YouTube (usa tu cuenta de Google)
+                    </p>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--light);">
+                <p style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">O introduce manualmente:</p>
+                
                 <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                     <input type="hidden" name="platform" value="YouTube">
                     

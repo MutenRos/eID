@@ -35,11 +35,12 @@ def create_app():
             db.disconnect()
     
     # Registrar blueprints
-    from app.routes import main, auth, profile, contacts, chat
+    from app.routes import main, auth, profile, contacts, chat, oauth
     app.register_blueprint(main.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(profile.bp)
     app.register_blueprint(contacts.bp)
     app.register_blueprint(chat.bp)
+    app.register_blueprint(oauth.bp)
     
     return app
