@@ -6,7 +6,7 @@ Sin usar APIs - solo parsing de URLs y scraping básico
 import re
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, unquote
 
 def extract_social_info(url, platform):
     """
@@ -18,9 +18,13 @@ def extract_social_info(url, platform):
         if not url.startswith('http'):
             url = 'https://' + url
         
+        # Decodificar caracteres especiales en la URL (ej: %C3%AD → í)
+        url = unquote(url)
+        
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
-        path = parsed.path.strip('/')
+        # Decodificar también el path (por si urlparse no lo hace automáticamente)
+        path = unquote(parsed.path).strip('/')
         
         info = {
             'url': url,
@@ -99,10 +103,33 @@ def _extract_twitter(url, path):
 
 def _extract_linkedin(url, path):
     """Extrae info de LinkedIn desde la URL"""
-    # Patrón: linkedin.com/in/username
-    match = re.search(r'/in/([^/]+)', path)
-    username = match.group(1) if match else None
-    return {'username': username}
+    # Limpiamos el path de slashes y parámetros
+    clean_path = path.rstrip('/').split('?')[0]
+    
+    # ✅ Regex sin / inicial obligatorio (el path ya viene sin / al inicio)
+    match_personal = re.search(r'in/([^/?\s]+)', clean_path)
+    match_company = re.search(r'company/([^/?\s]+)', clean_path)
+    
+    if match_personal:
+        username = match_personal.group(1)
+        # Formatear username para que sea más legible
+        # Reemplazar guiones por espacios y capitalizar
+        profile_name = username.replace('-', ' ').title()
+        return {
+            'username': username,
+            'profile_name': profile_name,
+            'bio': 'Perfil profesional en LinkedIn'
+        }
+    elif match_company:
+        company = match_company.group(1)
+        company_name = company.replace('-', ' ').title()
+        return {
+            'username': company,
+            'profile_name': company_name,
+            'bio': 'Página de empresa en LinkedIn'
+        }
+    
+    return {'username': None}
 
 
 def _extract_tiktok(url, path):
@@ -153,44 +180,76 @@ def _scrape_basic_info(url, info):
     NOTA: Muchas redes sociales bloquean scraping o requieren JS
     """
     try:
+        # LinkedIn y otras plataformas son muy restrictivas
+        # Para LinkedIn, usamos la información ya extraída de la URL
+        if 'linkedin.com' in url:
+            # LinkedIn bloquea scraping, usar info de URL
+            return info
+        
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
         }
         
         # Timeout corto para no bloquear la UI
-        response = requests.get(url, headers=headers, timeout=3, allow_redirects=True)
+        response = requests.get(url, headers=headers, timeout=5, allow_redirects=True)
         
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Intentar extraer meta tags comunes
+            # Intentar extraer meta tags comunes (Open Graph)
             og_title = soup.find('meta', property='og:title')
-            if og_title:
-                info['profile_name'] = og_title.get('content', '')
+            if og_title and og_title.get('content'):
+                info['profile_name'] = og_title.get('content', '').strip()
+            
+            # Twitter card title como alternativa
+            if not info.get('profile_name'):
+                twitter_title = soup.find('meta', attrs={'name': 'twitter:title'})
+                if twitter_title and twitter_title.get('content'):
+                    info['profile_name'] = twitter_title.get('content', '').strip()
             
             og_description = soup.find('meta', property='og:description')
-            if og_description:
-                info['bio'] = og_description.get('content', '')[:200]  # Limitar a 200 chars
+            if og_description and og_description.get('content'):
+                bio_text = og_description.get('content', '').strip()
+                info['bio'] = bio_text[:300] if len(bio_text) > 300 else bio_text
+            
+            # Meta description como alternativa
+            if not info.get('bio'):
+                meta_desc = soup.find('meta', attrs={'name': 'description'})
+                if meta_desc and meta_desc.get('content'):
+                    bio_text = meta_desc.get('content', '').strip()
+                    info['bio'] = bio_text[:300] if len(bio_text) > 300 else bio_text
             
             og_image = soup.find('meta', property='og:image')
-            if og_image:
-                info['avatar'] = og_image.get('content', '')
+            if og_image and og_image.get('content'):
+                info['avatar'] = og_image.get('content', '').strip()
+            
+            # Twitter image como alternativa
+            if not info.get('avatar'):
+                twitter_image = soup.find('meta', attrs={'name': 'twitter:image'})
+                if twitter_image and twitter_image.get('content'):
+                    info['avatar'] = twitter_image.get('content', '').strip()
             
             # Título de la página como fallback
             if not info.get('profile_name'):
                 title = soup.find('title')
-                if title:
-                    info['profile_name'] = title.string
+                if title and title.string:
+                    info['profile_name'] = title.string.strip()
         
         return info
         
     except requests.exceptions.Timeout:
         # No bloquear si el scraping tarda mucho
-        info['scraping_note'] = 'Timeout al obtener información adicional'
+        print(f"Timeout al obtener info de {url}")
         return info
     except Exception as e:
         # No fallar si el scraping no funciona
-        info['scraping_note'] = f'No se pudo obtener información adicional: {str(e)}'
+        print(f"Error en scraping de {url}: {str(e)}")
         return info
 
 

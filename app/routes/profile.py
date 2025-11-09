@@ -14,18 +14,35 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 @login_required
 def my_profile():
     """Mi perfil"""
-    import json
     social_links = SocialLink.get_by_user(current_user.id)
     
     # Crear diccionario de links por plataforma para pre-llenar formularios
     links_dict = {}
     for link in social_links:
-        # Parsear profile_data si existe
+        # DEBUG: Ver qué tipo de dato es profile_data
+        print(f"\n=== DEBUG: {link['platform']} ===")
+        print(f"Type of profile_data: {type(link.get('profile_data'))}")
+        print(f"Value: {link.get('profile_data')}")
+        
+        # Parsear profile_data si existe y es string
         if link.get('profile_data'):
             try:
-                link['profile_data_parsed'] = json.loads(link['profile_data'])
-            except:
+                if isinstance(link['profile_data'], str):
+                    print("Es string, parseando JSON...")
+                    link['profile_data_parsed'] = json.loads(link['profile_data'])
+                    print(f"Parseado exitosamente: {link['profile_data_parsed']}")
+                elif isinstance(link['profile_data'], dict):
+                    print("Ya es dict, usando directamente")
+                    link['profile_data_parsed'] = link['profile_data']
+                else:
+                    print(f"Tipo desconocido: {type(link['profile_data'])}")
+                    link['profile_data_parsed'] = None
+            except Exception as e:
+                print(f"❌ Error parseando profile_data: {e}")
                 link['profile_data_parsed'] = None
+        else:
+            link['profile_data_parsed'] = None
+            
         links_dict[link['platform']] = link
     
     return render_template('profile/view.html', user=current_user, social_links=social_links, links_dict=links_dict, is_own_profile=True)
@@ -91,31 +108,22 @@ def save_social_link():
     
     # Extraer información del enlace
     try:
-        social_info = extract_social_info(url, platform)
+        extracted_data = extract_social_info(url, platform)
         
         # Si no se proporcionó username, usar el extraído
-        if not username and social_info.get('username'):
-            username = social_info['username']
+        username = extracted_data.get('username', '')
         
         # Si aún no hay username, usar un valor por defecto
         if not username:
             username = 'Mi perfil'
         
-        # Guardar info adicional como JSON
-        profile_data = json.dumps({
-            'profile_name': social_info.get('profile_name'),
-            'avatar': social_info.get('avatar'),
-            'bio': social_info.get('bio'),
-            'followers': social_info.get('followers'),
-            'verified': social_info.get('verified'),
-            'additional_info': social_info.get('additional_info', {})
-        })
+        # Guardar toda la info extraída como profile_data
+        profile_data = extracted_data
         
     except Exception as e:
         print(f"Error extrayendo info: {str(e)}")
         # Si falla la extracción, usar valores básicos
-        if not username:
-            username = 'Mi perfil'
+        username = request.form.get('username', 'Mi perfil')
         profile_data = None
     
     # Verificar si ya existe este enlace
