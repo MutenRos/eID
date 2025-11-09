@@ -13,7 +13,13 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 def my_profile():
     """Mi perfil"""
     social_links = SocialLink.get_by_user(current_user.id)
-    return render_template('profile/view.html', user=current_user, social_links=social_links, is_own_profile=True)
+    
+    # Crear diccionario de links por plataforma para pre-llenar formularios
+    links_dict = {}
+    for link in social_links:
+        links_dict[link['platform']] = link
+    
+    return render_template('profile/view.html', user=current_user, social_links=social_links, links_dict=links_dict, is_own_profile=True)
 
 @bp.route('/contact/<int:user_id>')
 @login_required
@@ -72,7 +78,7 @@ def save_social_link():
     
     if not username or not url:
         flash(f'Por favor completa los campos de {platform}', 'error')
-        return redirect(url_for('profile.social_links'))
+        return redirect(url_for('profile.my_profile'))
     
     # Verificar si ya existe este enlace
     existing = SocialLink.get_by_platform(current_user.id, platform)
@@ -86,7 +92,7 @@ def save_social_link():
         SocialLink.create(current_user.id, platform, username, url, is_visible)
         flash(f'{platform} agregado correctamente', 'success')
     
-    return redirect(url_for('profile.social_links'))
+    return redirect(url_for('profile.my_profile'))
 
 @bp.route('/social-links/<int:link_id>/delete', methods=['POST'])
 @login_required
