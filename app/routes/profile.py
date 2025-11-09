@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.social_link import SocialLink
+from app.models.contact import Contact
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
@@ -13,6 +14,24 @@ def my_profile():
     """Mi perfil"""
     social_links = SocialLink.get_by_user(current_user.id)
     return render_template('profile/view.html', user=current_user, social_links=social_links, is_own_profile=True)
+
+@bp.route('/contact/<int:user_id>')
+@login_required
+def view_contact(user_id):
+    """Ver perfil de un contacto (solo si son contactos mutuos)"""
+    # Verificar que sean contactos mutuos
+    if not Contact.are_contacts(current_user.id, user_id):
+        flash('Solo puedes ver perfiles de tus contactos aceptados', 'error')
+        return redirect(url_for('contacts.index'))
+    
+    user = User.find_by_id(user_id)
+    if not user:
+        flash('Usuario no encontrado', 'error')
+        return redirect(url_for('contacts.index'))
+    
+    # Mostrar solo redes sociales visibles
+    social_links = SocialLink.get_visible_by_user(user_id)
+    return render_template('profile/view.html', user=user, social_links=social_links, is_own_profile=False)
 
 @bp.route('/edit', methods=['GET', 'POST'])
 @login_required

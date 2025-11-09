@@ -89,6 +89,10 @@
                         <br>{{ contact.full_name }}
                     {% endif %}
                     <br>
+                    <a href="{{ url_for('profile.view_contact', user_id=contact.id) }}">
+                        👤 Ver perfil
+                    </a>
+                    |
                     <a href="{{ url_for('chat.conversation', user_id=contact.id) }}">
                         💬 Chatear
                     </a>
