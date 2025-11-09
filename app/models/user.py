@@ -10,7 +10,7 @@ class User(UserMixin):
     
     def __init__(self, id=None, username=None, email=None, password_hash=None,
                  full_name=None, bio=None, avatar='default.png', website=None,
-                 created_at=None, is_active=True):
+                 created_at=None, updated_at=None, **kwargs):
         self.id = id
         self.username = username
         self.email = email
@@ -20,7 +20,8 @@ class User(UserMixin):
         self.avatar = avatar
         self.website = website
         self.created_at = created_at
-        self.is_active = is_active
+        self.updated_at = updated_at
+        # is_active viene de UserMixin, ignoramos si viene de la BD
     
     @staticmethod
     def create(username, email, password, full_name=None):

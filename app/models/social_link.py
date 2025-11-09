@@ -6,13 +6,32 @@ class SocialLink:
     """Enlaces a redes sociales del usuario"""
     
     @staticmethod
-    def create(user_id, platform, username, url, icon=None):
+    def create(user_id, platform, username, url, is_visible=True):
         """Crear nuevo enlace"""
         query = """
-            INSERT INTO social_links (user_id, platform, username, url, icon)
+            INSERT INTO social_links (user_id, platform, username, url, is_visible)
             VALUES (%s, %s, %s, %s, %s)
         """
-        return db.execute_query(query, (user_id, platform, username, url, icon))
+        return db.execute_query(query, (user_id, platform, username, url, is_visible))
+    
+    @staticmethod
+    def update(link_id, user_id, username, url, is_visible=True):
+        """Actualizar enlace existente"""
+        query = """
+            UPDATE social_links 
+            SET username = %s, url = %s, is_visible = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s AND user_id = %s
+        """
+        return db.execute_query(query, (username, url, is_visible, link_id, user_id))
+    
+    @staticmethod
+    def get_by_platform(user_id, platform):
+        """Obtener enlace por plataforma"""
+        query = """
+            SELECT * FROM social_links 
+            WHERE user_id = %s AND platform = %s
+        """
+        return db.fetch_one(query, (user_id, platform))
     
     @staticmethod
     def get_by_user(user_id):

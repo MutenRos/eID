@@ -1,83 +1,369 @@
 {% extends "base.html" %}
 
-{% block title %}Gestionar Redes Sociales - eID{% endblock %}
+{% block title %}Ficha de Contacto - eID{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="card">
-        <h1>Mis Redes Sociales</h1>
+        <h1>📇 Mi Ficha de Contacto</h1>
+        <p style="color: var(--gray); margin-bottom: 2rem;">
+            Gestiona tu información de contacto en cada red social
+        </p>
         
-        <h2>Agregar nueva red</h2>
-        <form method="POST">
-            <div class="grid grid-3">
-                <div class="form-group">
-                    <label for="platform">Plataforma</label>
-                    <select id="platform" name="platform" class="form-control" required>
-                        <option value="">Selecciona...</option>
-                        <option value="Instagram">Instagram</option>
-                        <option value="Twitter">Twitter / X</option>
-                        <option value="LinkedIn">LinkedIn</option>
-                        <option value="GitHub">GitHub</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="Facebook">Facebook</option>
-                        <option value="Twitch">Twitch</option>
-                        <option value="Discord">Discord</option>
-                        <option value="Otra">Otra</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="username">Usuario</label>
-                    <input type="text" id="username" name="username" 
-                           class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="url">URL completa</label>
-                    <input type="url" id="url" name="url" 
-                           class="form-control" required 
-                           placeholder="https://...">
-                </div>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Agregar</button>
-        </form>
-    </div>
-    
-    {% if links %}
-    <div class="card">
-        <h2>Redes sociales agregadas</h2>
+        <!-- Pestañas de redes sociales -->
+        <div class="contact-tabs">
+            <button class="tab-btn active" data-platform="whatsapp" onclick="switchTab('whatsapp')">
+                📱 WhatsApp
+            </button>
+            <button class="tab-btn" data-platform="facebook" onclick="switchTab('facebook')">
+                📘 Facebook
+            </button>
+            <button class="tab-btn" data-platform="instagram" onclick="switchTab('instagram')">
+                📷 Instagram
+            </button>
+            <button class="tab-btn" data-platform="linkedin" onclick="switchTab('linkedin')">
+                💼 LinkedIn
+            </button>
+            <button class="tab-btn" data-platform="x" onclick="switchTab('x')">
+                ✖️ X (Twitter)
+            </button>
+            <button class="tab-btn" data-platform="tiktok" onclick="switchTab('tiktok')">
+                🎵 TikTok
+            </button>
+            <button class="tab-btn" data-platform="youtube" onclick="switchTab('youtube')">
+                📺 YouTube
+            </button>
+        </div>
         
-        <div class="grid grid-2">
-            {% for link in links %}
-            <div class="social-link-item">
-                <div>
-                    <strong>{{ link.platform }}</strong>
-                    <br>@{{ link.username }}
-                    <br><small><a href="{{ link.url }}" target="_blank">{{ link.url }}</a></small>
+        <!-- Contenido de cada pestaña -->
+        <div class="tab-content active" id="tab-whatsapp">
+            <h2>📱 WhatsApp</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="WhatsApp">
+                
+                <div class="form-group">
+                    <label for="whatsapp-phone">Número de teléfono</label>
+                    <input type="tel" id="whatsapp-phone" name="username" 
+                           class="form-control" 
+                           placeholder="+34 600 000 000"
+                           value="{{ links_dict.get('WhatsApp', {}).get('username', '') }}">
                 </div>
                 
-                <form method="POST" action="{{ url_for('profile.delete_social_link', link_id=link.id) }}" 
-                      style="display: inline;"
-                      onsubmit="return confirm('¿Eliminar esta red social?')">
-                    <button type="submit" class="btn" style="background: var(--danger); color: white;">
-                        Eliminar
-                    </button>
-                </form>
-            </div>
-            {% endfor %}
+                <div class="form-group">
+                    <label for="whatsapp-url">URL de WhatsApp</label>
+                    <input type="url" id="whatsapp-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://wa.me/34600000000"
+                           value="{{ links_dict.get('WhatsApp', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1" 
+                               {{ 'checked' if links_dict.get('WhatsApp', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar WhatsApp</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-facebook">
+            <h2>📘 Facebook</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="Facebook">
+                
+                <div class="form-group">
+                    <label for="facebook-username">Usuario de Facebook</label>
+                    <input type="text" id="facebook-username" name="username" 
+                           class="form-control" 
+                           placeholder="tunombre"
+                           value="{{ links_dict.get('Facebook', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="facebook-url">URL de tu perfil</label>
+                    <input type="url" id="facebook-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://facebook.com/tunombre"
+                           value="{{ links_dict.get('Facebook', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('Facebook', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar Facebook</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-instagram">
+            <h2>📷 Instagram</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="Instagram">
+                
+                <div class="form-group">
+                    <label for="instagram-username">Usuario de Instagram</label>
+                    <input type="text" id="instagram-username" name="username" 
+                           class="form-control" 
+                           placeholder="@tunombre"
+                           value="{{ links_dict.get('Instagram', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instagram-url">URL de tu perfil</label>
+                    <input type="url" id="instagram-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://instagram.com/tunombre"
+                           value="{{ links_dict.get('Instagram', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('Instagram', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar Instagram</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-linkedin">
+            <h2>💼 LinkedIn</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="LinkedIn">
+                
+                <div class="form-group">
+                    <label for="linkedin-username">Usuario de LinkedIn</label>
+                    <input type="text" id="linkedin-username" name="username" 
+                           class="form-control" 
+                           placeholder="tunombre"
+                           value="{{ links_dict.get('LinkedIn', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="linkedin-url">URL de tu perfil</label>
+                    <input type="url" id="linkedin-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://linkedin.com/in/tunombre"
+                           value="{{ links_dict.get('LinkedIn', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('LinkedIn', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar LinkedIn</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-x">
+            <h2>✖️ X (Twitter)</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="X">
+                
+                <div class="form-group">
+                    <label for="x-username">Usuario de X</label>
+                    <input type="text" id="x-username" name="username" 
+                           class="form-control" 
+                           placeholder="@tunombre"
+                           value="{{ links_dict.get('X', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="x-url">URL de tu perfil</label>
+                    <input type="url" id="x-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://x.com/tunombre"
+                           value="{{ links_dict.get('X', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('X', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar X</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-tiktok">
+            <h2>🎵 TikTok</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="TikTok">
+                
+                <div class="form-group">
+                    <label for="tiktok-username">Usuario de TikTok</label>
+                    <input type="text" id="tiktok-username" name="username" 
+                           class="form-control" 
+                           placeholder="@tunombre"
+                           value="{{ links_dict.get('TikTok', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tiktok-url">URL de tu perfil</label>
+                    <input type="url" id="tiktok-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://tiktok.com/@tunombre"
+                           value="{{ links_dict.get('TikTok', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('TikTok', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar TikTok</button>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="tab-youtube">
+            <h2>📺 YouTube</h2>
+            <form method="POST" action="{{ url_for('profile.save_social_link') }}">
+                <input type="hidden" name="platform" value="YouTube">
+                
+                <div class="form-group">
+                    <label for="youtube-username">Usuario / Canal de YouTube</label>
+                    <input type="text" id="youtube-username" name="username" 
+                           class="form-control" 
+                           placeholder="@tucanal"
+                           value="{{ links_dict.get('YouTube', {}).get('username', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="youtube-url">URL de tu canal</label>
+                    <input type="url" id="youtube-url" name="url" 
+                           class="form-control" 
+                           placeholder="https://youtube.com/@tucanal"
+                           value="{{ links_dict.get('YouTube', {}).get('url', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_visible" value="1"
+                               {{ 'checked' if links_dict.get('YouTube', {}).get('is_visible', True) else '' }}>
+                        Mostrar en mi perfil público
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">💾 Guardar YouTube</button>
+            </form>
         </div>
     </div>
-    {% endif %}
+    
+    </div>
 </div>
 
 <style>
-.social-link-item {
+.contact-tabs {
     display: flex;
-    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--light);
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    color: var(--gray);
+    font-weight: 500;
+}
+
+.tab-btn:hover {
+    background: var(--gray-light);
+    color: var(--dark);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content h2 {
+    margin-bottom: 1.5rem;
+    color: var(--dark);
+    display: flex;
     align-items: center;
-    padding: 1rem;
+    gap: 0.5rem;
+}
+
+.tab-content form {
+    max-width: 600px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+    font-weight: 500;
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+</style>
+
+<script>
+function switchTab(platform) {
+    // Desactivar todas las pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Activar la pestaña seleccionada
+    document.querySelector(`[data-platform="${platform}"]`).classList.add('active');
+    document.getElementById(`tab-${platform}`).classList.add('active');
+}
+</script>
+{% endblock %}
     background: var(--gray-light);
     border-radius: 10px;
 }

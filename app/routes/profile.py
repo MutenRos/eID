@@ -40,21 +40,45 @@ def edit():
     
     return render_template('profile/edit.html')
 
-@bp.route('/social-links', methods=['GET', 'POST'])
+@bp.route('/social-links', methods=['GET'])
 @login_required
 def social_links():
-    """Gestionar enlaces a redes sociales"""
-    if request.method == 'POST':
-        platform = request.form.get('platform')
-        username = request.form.get('username')
-        url = request.form.get('url')
-        
-        SocialLink.create(current_user.id, platform, username, url)
-        flash(f'Red social {platform} agregada', 'success')
+    """Gestionar enlaces a redes sociales - Vista de ficha de contacto"""
+    links = SocialLink.get_by_user(current_user.id)
+    
+    # Convertir lista de links a diccionario por plataforma
+    links_dict = {}
+    for link in links:
+        links_dict[link['platform']] = link
+    
+    return render_template('profile/social_links.html', links=links, links_dict=links_dict)
+
+@bp.route('/social-links/save', methods=['POST'])
+@login_required
+def save_social_link():
+    """Guardar o actualizar enlace a red social"""
+    platform = request.form.get('platform')
+    username = request.form.get('username')
+    url = request.form.get('url')
+    is_visible = request.form.get('is_visible') == '1'
+    
+    if not username or not url:
+        flash(f'Por favor completa los campos de {platform}', 'error')
         return redirect(url_for('profile.social_links'))
     
-    links = SocialLink.get_by_user(current_user.id)
-    return render_template('profile/social_links.html', links=links)
+    # Verificar si ya existe este enlace
+    existing = SocialLink.get_by_platform(current_user.id, platform)
+    
+    if existing:
+        # Actualizar
+        SocialLink.update(existing['id'], current_user.id, username, url, is_visible)
+        flash(f'{platform} actualizado correctamente', 'success')
+    else:
+        # Crear nuevo
+        SocialLink.create(current_user.id, platform, username, url, is_visible)
+        flash(f'{platform} agregado correctamente', 'success')
+    
+    return redirect(url_for('profile.social_links'))
 
 @bp.route('/social-links/<int:link_id>/delete', methods=['POST'])
 @login_required
