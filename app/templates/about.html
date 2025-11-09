@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Acerca de - eID{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <h1>Acerca de eID</h1>
+    
+    <section class="about-project">
+        <h2>El Proyecto</h2>
+        <p>
+            eID nace como proyecto de la Milla Extra del primer semestre del ciclo DAM 
+            (Desarrollo de Aplicaciones Multiplataforma). El objetivo es crear una plataforma 
+            que resuelva un problema real: la dispersión de nuestra identidad digital en 
+            múltiples redes sociales.
+        </p>
+    </section>
+    
+    <section class="tech-stack">
+        <h2>Tecnologías Utilizadas</h2>
+        <ul>
+            <li><strong>Backend:</strong> Flask (Python)</li>
+            <li><strong>Base de datos:</strong> SQLite / SQLAlchemy</li>
+            <li><strong>Autenticación:</strong> Flask-Login</li>
+            <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript vanilla</li>
+            <li><strong>Control de versiones:</strong> Git & GitHub</li>
+        </ul>
+    </section>
+    
+    <section class="features-detail">
+        <h2>Funcionalidades Implementadas</h2>
+        
+        <h3>1. Sistema de Usuarios</h3>
+        <ul>
+            <li>Registro y autenticación segura</li>
+            <li>Perfiles personalizables</li>
+            <li>Gestión de contraseñas hasheadas</li>
+        </ul>
+        
+        <h3>2. Enlaces a Redes Sociales</h3>
+        <ul>
+            <li>Agregar múltiples redes sociales</li>
+            <li>Ordenar y organizar enlaces</li>
+            <li>Visibilidad pública del perfil</li>
+        </ul>
+        
+        <h3>3. Agenda de Contactos</h3>
+        <ul>
+            <li>Búsqueda de usuarios</li>
+            <li>Solicitudes de contacto</li>
+            <li>Aceptar/rechazar solicitudes</li>
+        </ul>
+        
+        <h3>4. Sistema de Mensajería</h3>
+        <ul>
+            <li>Chat privado entre contactos</li>
+            <li>Indicadores de mensajes no leídos</li>
+            <li>Historial de conversaciones</li>
+        </ul>
+    </section>
+    
+    <section class="roadmap">
+        <h2>Roadmap Futuro</h2>
+        <ul>
+            <li>🔄 Chat en tiempo real con WebSockets</li>
+            <li>🔄 Integración con APIs de redes sociales</li>
+            <li>🔄 Temas personalizables para perfiles</li>
+            <li>🔄 Análisis de visitas al perfil</li>
+            <li>🔄 Exportación de tarjeta de visita en PDF</li>
+            <li>🔄 Códigos QR para compartir perfil</li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

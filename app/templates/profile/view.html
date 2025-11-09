@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - eID{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>@{{ user.username }}</h1>
+            {% if current_user.id == user.id %}
+                <a href="{{ url_for('profile.edit') }}" class="btn btn-secondary">Editar perfil</a>
+            {% endif %}
+        </div>
+        
+        {% if user.full_name %}
+            <h2>{{ user.full_name }}</h2>
+        {% endif %}
+        
+        {% if user.bio %}
+            <p style="margin: 1.5rem 0;">{{ user.bio }}</p>
+        {% endif %}
+        
+        {% if user.website %}
+            <p>🌐 <a href="{{ user.website }}" target="_blank">{{ user.website }}</a></p>
+        {% endif %}
+    </div>
+    
+    {% if user.social_links.count() > 0 %}
+    <div class="card">
+        <h2>Redes Sociales</h2>
+        
+        <div class="grid grid-3">
+            {% for link in user.social_links.filter_by(is_visible=True).order_by('order') %}
+            <a href="{{ link.url }}" target="_blank" class="social-link-card">
+                <strong>{{ link.platform }}</strong>
+                <br>@{{ link.username }}
+            </a>
+            {% endfor %}
+        </div>
+        
+        {% if current_user.id == user.id %}
+            <a href="{{ url_for('profile.social_links') }}" class="btn btn-secondary" style="margin-top: 1rem;">
+                Gestionar redes sociales
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.social-link-card {
+    display: block;
+    padding: 1.5rem;
+    background: var(--gray-light);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--dark);
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.social-link-card:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translateY(-3px);
+}
+</style>
+{% endblock %}

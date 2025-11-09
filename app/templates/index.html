@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>eID - Tu Identidad Digital</h1>
+        <p class="tagline">Una tarjeta de visita online que reúne todas tus redes sociales</p>
+        
+        <div class="hero-features">
+            <div class="feature">
+                <div class="feature-icon">🌐</div>
+                <h3>Meta Red Social</h3>
+                <p>Conecta todas tus redes en un solo lugar</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">👥</div>
+                <h3>Agenda de Contactos</h3>
+                <p>Gestiona tus conexiones profesionales</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">💬</div>
+                <h3>Chat Integrado</h3>
+                <p>Comunícate con tus contactos</p>
+            </div>
+        </div>
+        
+        <div class="cta-buttons">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Crear mi eID</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Iniciar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<section class="about-section">
+    <div class="container">
+        <h2>¿Qué es eID?</h2>
+        <p>
+            eID es tu tarjeta de visita digital que centraliza tu presencia en internet.
+            Comparte un único enlace con todas tus redes sociales, conecta con profesionales
+            de tu sector y mantén conversaciones directas con tus contactos.
+        </p>
+        
+        <h3>Características principales</h3>
+        <ul class="features-list">
+            <li>✓ Perfil personalizable con bio y enlaces sociales</li>
+            <li>✓ Agregación de Instagram, Twitter, LinkedIn, GitHub y más</li>
+            <li>✓ Sistema de contactos con solicitudes</li>
+            <li>✓ Mensajería privada entre contactos</li>
+            <li>✓ URL única para compartir: eid.com/tu-usuario</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}

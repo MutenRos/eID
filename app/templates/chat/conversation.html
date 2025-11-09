@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Chat con @{{ other_user.username }} - eID{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h1>Chat con @{{ other_user.username }}</h1>
+            <a href="{{ url_for('chat.index') }}" class="btn btn-secondary">Volver</a>
+        </div>
+        
+        <div id="chat-messages" class="chat-messages">
+            {% if messages %}
+                {% for msg in messages %}
+                <div class="message {% if msg.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}">
+                    <div class="message-content">
+                        {{ msg.content }}
+                    </div>
+                    <small class="message-time">
+                        {{ msg.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% if msg.sender_id == current_user.id and msg.is_read %}
+                            ✓✓
+                        {% endif %}
+                    </small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: var(--gray); margin: 2rem 0;">
+                    No hay mensajes aún. ¡Envía el primero!
+                </p>
+            {% endif %}
+        </div>
+        
+        <form method="POST" action="{{ url_for('chat.send_message', user_id=other_user.id) }}" class="chat-form">
+            <input type="text" name="content" class="form-control" 
+                   placeholder="Escribe un mensaje..." required autofocus>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.chat-messages {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--gray-light);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-sent {
+    align-items: flex-end;
+}
+
+.message-received {
+    align-items: flex-start;
+}
+
+.message-content {
+    background: var(--white);
+    padding: 0.75rem 1rem;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message-sent .message-content {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.message-time {
+    color: var(--gray);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.chat-form {
+    display: flex;
+    gap: 1rem;
+}
+
+.chat-form .form-control {
+    flex: 1;
+}
+</style>
+
+<script>
+// Scroll al final al cargar
+const chatMessages = document.getElementById('chat-messages');
+if (chatMessages) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+{% endblock %}

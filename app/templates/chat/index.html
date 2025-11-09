@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - eID{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h1>Conversaciones</h1>
+        
+        {% if contacts %}
+            <div class="grid grid-3">
+                {% for contact in contacts %}
+                    {% if contact.user_id == current_user.id %}
+                        {% set other_user = contact.contact %}
+                    {% else %}
+                        {% set other_user = contact.user %}
+                    {% endif %}
+                    
+                    <a href="{{ url_for('chat.conversation', user_id=other_user.id) }}" 
+                       class="chat-contact-card">
+                        <strong>@{{ other_user.username }}</strong>
+                        {% if other_user.full_name %}
+                            <br><small>{{ other_user.full_name }}</small>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: var(--gray); margin: 2rem 0;">
+                No tienes contactos aún. 
+                <a href="{{ url_for('contacts.index') }}">Agregar contactos</a>
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.chat-contact-card {
+    display: block;
+    padding: 1.5rem;
+    background: var(--gray-light);
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--dark);
+    transition: all 0.3s;
+}
+
+.chat-contact-card:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translateY(-3px);
+}
+</style>
+{% endblock %}

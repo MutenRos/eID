@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Redes Sociales - eID{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h1>Mis Redes Sociales</h1>
+        
+        <h2>Agregar nueva red</h2>
+        <form method="POST">
+            <div class="grid grid-3">
+                <div class="form-group">
+                    <label for="platform">Plataforma</label>
+                    <select id="platform" name="platform" class="form-control" required>
+                        <option value="">Selecciona...</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Twitter">Twitter / X</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="GitHub">GitHub</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Twitch">Twitch</option>
+                        <option value="Discord">Discord</option>
+                        <option value="Otra">Otra</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" 
+                           class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="url">URL completa</label>
+                    <input type="url" id="url" name="url" 
+                           class="form-control" required 
+                           placeholder="https://...">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Agregar</button>
+        </form>
+    </div>
+    
+    {% if links %}
+    <div class="card">
+        <h2>Redes sociales agregadas</h2>
+        
+        <div class="grid grid-2">
+            {% for link in links %}
+            <div class="social-link-item">
+                <div>
+                    <strong>{{ link.platform }}</strong>
+                    <br>@{{ link.username }}
+                    <br><small><a href="{{ link.url }}" target="_blank">{{ link.url }}</a></small>
+                </div>
+                
+                <form method="POST" action="{{ url_for('profile.delete_social_link', link_id=link.id) }}" 
+                      style="display: inline;"
+                      onsubmit="return confirm('¿Eliminar esta red social?')">
+                    <button type="submit" class="btn" style="background: var(--danger); color: white;">
+                        Eliminar
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.social-link-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--gray-light);
+    border-radius: 10px;
+}
+
+.social-link-item a {
+    color: var(--primary);
+}
+</style>
+{% endblock %}
