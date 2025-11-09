@@ -68,17 +68,29 @@
                     <!-- WhatsApp -->
                     <div class="tab-content active" id="tab-whatsapp">
                         <h3>📱 WhatsApp</h3>
+                        
+                        {% if links_dict.get('WhatsApp') and links_dict.get('WhatsApp').get('profile_data_parsed') %}
+                            {% set wa_data = links_dict.get('WhatsApp').get('profile_data_parsed') %}
+                            <div class="social-preview">
+                                <div class="preview-header">
+                                    <div class="preview-avatar-placeholder">📱</div>
+                                    <div class="preview-info">
+                                        <h4>{{ wa_data.get('profile_name') or 'WhatsApp' }}</h4>
+                                        <p class="preview-username">{{ links_dict.get('WhatsApp').get('username', '') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ links_dict.get('WhatsApp').get('url') }}" target="_blank" class="preview-link">Abrir chat →</a>
+                            </div>
+                            <hr style="margin: 2rem 0;">
+                        {% endif %}
+                        
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="WhatsApp">
                             <div class="form-group">
-                                <label for="whatsapp-phone">Número de teléfono</label>
-                                <input type="tel" id="whatsapp-phone" name="username" class="form-control" 
-                                       placeholder="+34 600 000 000" value="{{ links_dict.get('WhatsApp', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="whatsapp-url">URL de WhatsApp</label>
+                                <label for="whatsapp-url">URL de WhatsApp *</label>
                                 <input type="url" id="whatsapp-url" name="url" class="form-control" 
-                                       placeholder="https://wa.me/34600000000" value="{{ links_dict.get('WhatsApp', {}).get('url', '') }}">
+                                       placeholder="https://wa.me/34600000000" value="{{ links_dict.get('WhatsApp', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega tu enlace de WhatsApp (ej: https://wa.me/34600000000)</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -120,12 +132,6 @@
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="Facebook">
                             <div class="form-group">
-                                <label for="facebook-username">Usuario de Facebook (opcional)</label>
-                                <input type="text" id="facebook-username" name="username" class="form-control" 
-                                       placeholder="tunombre" value="{{ links_dict.get('Facebook', {}).get('username', '') }}">
-                                <small style="color: var(--gray);">Se auto-completará desde la URL</small>
-                            </div>
-                            <div class="form-group">
                                 <label for="facebook-url">URL de tu perfil *</label>
                                 <input type="url" id="facebook-url" name="url" class="form-control" 
                                        placeholder="https://facebook.com/tunombre" value="{{ links_dict.get('Facebook', {}).get('url', '') }}" required>
@@ -144,17 +150,36 @@
                     <!-- Instagram -->
                     <div class="tab-content" id="tab-instagram">
                         <h3>📷 Instagram</h3>
+                        
+                        {% if links_dict.get('Instagram') and links_dict.get('Instagram').get('profile_data_parsed') %}
+                            {% set ig_data = links_dict.get('Instagram').get('profile_data_parsed') %}
+                            <div class="social-preview">
+                                <div class="preview-header">
+                                    {% if ig_data.get('avatar') %}
+                                        <img src="{{ ig_data.avatar }}" alt="Avatar" class="preview-avatar">
+                                    {% else %}
+                                        <div class="preview-avatar-placeholder">📷</div>
+                                    {% endif %}
+                                    <div class="preview-info">
+                                        <h4>{{ ig_data.get('profile_name') or links_dict.get('Instagram').get('username') or 'Tu perfil de Instagram' }}</h4>
+                                        <p class="preview-username">{{ links_dict.get('Instagram').get('username', '') }}</p>
+                                    </div>
+                                </div>
+                                {% if ig_data.get('bio') %}
+                                    <p class="preview-bio">{{ ig_data.bio[:150] }}{% if ig_data.bio|length > 150 %}...{% endif %}</p>
+                                {% endif %}
+                                <a href="{{ links_dict.get('Instagram').get('url') }}" target="_blank" class="preview-link">Ver perfil completo →</a>
+                            </div>
+                            <hr style="margin: 2rem 0;">
+                        {% endif %}
+                        
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="Instagram">
                             <div class="form-group">
-                                <label for="instagram-username">Usuario de Instagram</label>
-                                <input type="text" id="instagram-username" name="username" class="form-control" 
-                                       placeholder="@tunombre" value="{{ links_dict.get('Instagram', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="instagram-url">URL de tu perfil</label>
+                                <label for="instagram-url">URL de tu perfil *</label>
                                 <input type="url" id="instagram-url" name="url" class="form-control" 
-                                       placeholder="https://instagram.com/tunombre" value="{{ links_dict.get('Instagram', {}).get('url', '') }}">
+                                       placeholder="https://instagram.com/tunombre" value="{{ links_dict.get('Instagram', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu perfil de Instagram</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -172,14 +197,10 @@
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="LinkedIn">
                             <div class="form-group">
-                                <label for="linkedin-username">Usuario de LinkedIn</label>
-                                <input type="text" id="linkedin-username" name="username" class="form-control" 
-                                       placeholder="tunombre" value="{{ links_dict.get('LinkedIn', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="linkedin-url">URL de tu perfil</label>
+                                <label for="linkedin-url">URL de tu perfil *</label>
                                 <input type="url" id="linkedin-url" name="url" class="form-control" 
-                                       placeholder="https://linkedin.com/in/tunombre" value="{{ links_dict.get('LinkedIn', {}).get('url', '') }}">
+                                       placeholder="https://linkedin.com/in/tunombre" value="{{ links_dict.get('LinkedIn', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu perfil de LinkedIn</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -197,14 +218,10 @@
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="X">
                             <div class="form-group">
-                                <label for="x-username">Usuario de X</label>
-                                <input type="text" id="x-username" name="username" class="form-control" 
-                                       placeholder="@tunombre" value="{{ links_dict.get('X', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="x-url">URL de tu perfil</label>
+                                <label for="x-url">URL de tu perfil *</label>
                                 <input type="url" id="x-url" name="url" class="form-control" 
-                                       placeholder="https://x.com/tunombre" value="{{ links_dict.get('X', {}).get('url', '') }}">
+                                       placeholder="https://x.com/tunombre" value="{{ links_dict.get('X', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu perfil de X (Twitter)</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -222,14 +239,10 @@
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="TikTok">
                             <div class="form-group">
-                                <label for="tiktok-username">Usuario de TikTok</label>
-                                <input type="text" id="tiktok-username" name="username" class="form-control" 
-                                       placeholder="@tunombre" value="{{ links_dict.get('TikTok', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="tiktok-url">URL de tu perfil</label>
+                                <label for="tiktok-url">URL de tu perfil *</label>
                                 <input type="url" id="tiktok-url" name="url" class="form-control" 
-                                       placeholder="https://tiktok.com/@tunombre" value="{{ links_dict.get('TikTok', {}).get('url', '') }}">
+                                       placeholder="https://tiktok.com/@tunombre" value="{{ links_dict.get('TikTok', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu perfil de TikTok</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -247,14 +260,10 @@
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="YouTube">
                             <div class="form-group">
-                                <label for="youtube-username">Usuario / Canal de YouTube</label>
-                                <input type="text" id="youtube-username" name="username" class="form-control" 
-                                       placeholder="@tucanal" value="{{ links_dict.get('YouTube', {}).get('username', '') }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="youtube-url">URL de tu canal</label>
+                                <label for="youtube-url">URL de tu canal *</label>
                                 <input type="url" id="youtube-url" name="url" class="form-control" 
-                                       placeholder="https://youtube.com/@tucanal" value="{{ links_dict.get('YouTube', {}).get('url', '') }}">
+                                       placeholder="https://youtube.com/@tucanal" value="{{ links_dict.get('YouTube', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu canal de YouTube</small>
                             </div>
                             <div class="form-group">
                                 <label>
