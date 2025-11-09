@@ -5,46 +5,82 @@
 {% block content %}
 <div class="container">
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <h1>@{{ user.username }}</h1>
-            {% if current_user.is_authenticated and current_user.id == user.id %}
-                <a href="{{ url_for('profile.edit') }}" class="btn btn-secondary">Editar perfil</a>
+            {% if is_own_profile %}
+                <a href="{{ url_for('profile.edit') }}" class="btn btn-secondary">✏️ Editar perfil</a>
             {% endif %}
         </div>
         
         {% if user.full_name %}
-            <h2>{{ user.full_name }}</h2>
+            <h2 style="color: var(--gray); font-size: 1.3rem; margin-bottom: 1rem;">{{ user.full_name }}</h2>
         {% endif %}
         
         {% if user.bio %}
-            <p style="margin: 1.5rem 0;">{{ user.bio }}</p>
+            <p style="margin: 1.5rem 0; color: var(--dark);">{{ user.bio }}</p>
+        {% else %}
+            {% if is_own_profile %}
+                <p style="color: var(--gray); font-style: italic; margin: 1rem 0;">
+                    📝 No has añadido una biografía aún. 
+                    <a href="{{ url_for('profile.edit') }}">Añade una aquí</a>
+                </p>
+            {% endif %}
         {% endif %}
         
         {% if user.website %}
-            <p>🌐 <a href="{{ user.website }}" target="_blank">{{ user.website }}</a></p>
+            <p style="margin: 1rem 0;">🌐 <a href="{{ user.website }}" target="_blank" style="color: var(--primary);">{{ user.website }}</a></p>
+        {% endif %}
+        
+        {% if is_own_profile %}
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--light);">
+                <h3 style="color: var(--dark); margin-bottom: 1rem;">🔐 Tu Código de Amigo</h3>
+                <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 1.5rem; border-radius: 10px; color: white;">
+                    <div style="font-size: 1.8rem; font-weight: bold; letter-spacing: 0.3rem; text-align: center; font-family: 'Courier New', monospace; margin-bottom: 1rem;">
+                        {{ user.friend_code }}
+                    </div>
+                    <button onclick="copyCode()" class="btn" style="background: white; color: var(--primary); width: 100%;">
+                        📋 Copiar código
+                    </button>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9rem; margin-top: 1rem; text-align: center;">
+                    Comparte este código con tus amigos para que puedan agregarte
+                </p>
+            </div>
         {% endif %}
     </div>
     
-    {% if social_links %}
     <div class="card">
-        <h2>Redes Sociales</h2>
-        
-        <div class="grid grid-3">
-            {% for link in social_links %}
-            <a href="{{ link.url }}" target="_blank" class="social-link-card">
-                <strong>{{ link.platform }}</strong>
-                <br>@{{ link.username }}
-            </a>
-            {% endfor %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>📱 Redes Sociales</h2>
+            {% if is_own_profile %}
+                <a href="{{ url_for('profile.social_links') }}" class="btn btn-primary">
+                    ⚙️ Gestionar
+                </a>
+            {% endif %}
         </div>
         
-        {% if current_user.is_authenticated and current_user.id == user.id %}
-            <a href="{{ url_for('profile.social_links') }}" class="btn btn-secondary" style="margin-top: 1rem;">
-                Gestionar redes sociales
-            </a>
+        {% if social_links %}
+            <div class="grid grid-3">
+                {% for link in social_links %}
+                <a href="{{ link.url }}" target="_blank" class="social-link-card">
+                    <strong>{{ link.platform }}</strong>
+                    <br>@{{ link.username }}
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% if is_own_profile %}
+                <p style="color: var(--gray); text-align: center; padding: 2rem;">
+                    📇 No has agregado ninguna red social aún.<br>
+                    <a href="{{ url_for('profile.social_links') }}" style="color: var(--primary);">Haz clic aquí para añadirlas</a>
+                </p>
+            {% else %}
+                <p style="color: var(--gray); text-align: center; padding: 2rem;">
+                    Este usuario no ha compartido sus redes sociales
+                </p>
+            {% endif %}
         {% endif %}
     </div>
-    {% endif %}
 </div>
 
 <style>
@@ -65,4 +101,21 @@
     transform: translateY(-3px);
 }
 </style>
+
+<script>
+function copyCode() {
+    const code = "{{ user.friend_code }}";
+    navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Código copiado: ' + code);
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('✅ Código copiado: ' + code);
+    });
+}
+</script>
 {% endblock %}
