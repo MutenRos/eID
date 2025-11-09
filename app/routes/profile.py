@@ -5,6 +5,8 @@ from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.social_link import SocialLink
 from app.models.contact import Contact
+from app.social_extractor import extract_social_info
+import json
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
@@ -83,21 +85,50 @@ def save_social_link():
     url = request.form.get('url')
     is_visible = request.form.get('is_visible') == '1'
     
-    if not username or not url:
-        flash(f'Por favor completa los campos de {platform}', 'error')
+    if not url:
+        flash(f'Por favor ingresa la URL de tu perfil de {platform}', 'error')
         return redirect(url_for('profile.my_profile'))
+    
+    # Extraer información del enlace
+    try:
+        social_info = extract_social_info(url, platform)
+        
+        # Si no se proporcionó username, usar el extraído
+        if not username and social_info.get('username'):
+            username = social_info['username']
+        
+        # Si aún no hay username, usar un valor por defecto
+        if not username:
+            username = 'Mi perfil'
+        
+        # Guardar info adicional como JSON
+        profile_data = json.dumps({
+            'profile_name': social_info.get('profile_name'),
+            'avatar': social_info.get('avatar'),
+            'bio': social_info.get('bio'),
+            'followers': social_info.get('followers'),
+            'verified': social_info.get('verified'),
+            'additional_info': social_info.get('additional_info', {})
+        })
+        
+    except Exception as e:
+        print(f"Error extrayendo info: {str(e)}")
+        # Si falla la extracción, usar valores básicos
+        if not username:
+            username = 'Mi perfil'
+        profile_data = None
     
     # Verificar si ya existe este enlace
     existing = SocialLink.get_by_platform(current_user.id, platform)
     
     if existing:
-        # Actualizar
-        SocialLink.update(existing['id'], current_user.id, username, url, is_visible)
-        flash(f'{platform} actualizado correctamente', 'success')
+        # Actualizar con profile_data
+        SocialLink.update(existing['id'], current_user.id, username, url, is_visible, profile_data)
+        flash(f'✅ {platform} actualizado correctamente', 'success')
     else:
-        # Crear nuevo
-        SocialLink.create(current_user.id, platform, username, url, is_visible)
-        flash(f'{platform} agregado correctamente', 'success')
+        # Crear nuevo con profile_data
+        SocialLink.create(current_user.id, platform, username, url, is_visible, profile_data)
+        flash(f'✅ {platform} agregado correctamente', 'success')
     
     return redirect(url_for('profile.my_profile'))
 

@@ -93,17 +93,43 @@
                     <!-- Facebook -->
                     <div class="tab-content" id="tab-facebook">
                         <h3>📘 Facebook</h3>
+                        
+                        {% if links_dict.get('Facebook') and links_dict.get('Facebook').get('profile_data_parsed') %}
+                            <!-- Preview de información extraída -->
+                            {% set fb_data = links_dict.get('Facebook').get('profile_data_parsed') %}
+                            <div class="social-preview">
+                                <div class="preview-header">
+                                    {% if fb_data.get('avatar') %}
+                                        <img src="{{ fb_data.avatar }}" alt="Avatar" class="preview-avatar">
+                                    {% else %}
+                                        <div class="preview-avatar-placeholder">📘</div>
+                                    {% endif %}
+                                    <div class="preview-info">
+                                        <h4>{{ fb_data.get('profile_name') or links_dict.get('Facebook').get('username') or 'Tu perfil de Facebook' }}</h4>
+                                        <p class="preview-username">{{ links_dict.get('Facebook').get('username', '') }}</p>
+                                    </div>
+                                </div>
+                                {% if fb_data.get('bio') %}
+                                    <p class="preview-bio">{{ fb_data.bio[:150] }}{% if fb_data.bio|length > 150 %}...{% endif %}</p>
+                                {% endif %}
+                                <a href="{{ links_dict.get('Facebook').get('url') }}" target="_blank" class="preview-link">Ver perfil completo →</a>
+                            </div>
+                            <hr style="margin: 2rem 0;">
+                        {% endif %}
+                        
                         <form method="POST" action="{{ url_for('profile.save_social_link') }}">
                             <input type="hidden" name="platform" value="Facebook">
                             <div class="form-group">
-                                <label for="facebook-username">Usuario de Facebook</label>
+                                <label for="facebook-username">Usuario de Facebook (opcional)</label>
                                 <input type="text" id="facebook-username" name="username" class="form-control" 
                                        placeholder="tunombre" value="{{ links_dict.get('Facebook', {}).get('username', '') }}">
+                                <small style="color: var(--gray);">Se auto-completará desde la URL</small>
                             </div>
                             <div class="form-group">
-                                <label for="facebook-url">URL de tu perfil</label>
+                                <label for="facebook-url">URL de tu perfil *</label>
                                 <input type="url" id="facebook-url" name="url" class="form-control" 
-                                       placeholder="https://facebook.com/tunombre" value="{{ links_dict.get('Facebook', {}).get('url', '') }}">
+                                       placeholder="https://facebook.com/tunombre" value="{{ links_dict.get('Facebook', {}).get('url', '') }}" required>
+                                <small style="color: var(--gray);">Pega el enlace a tu perfil de Facebook</small>
                             </div>
                             <div class="form-group">
                                 <label>
@@ -369,6 +395,90 @@
 .form-control:focus {
     outline: none;
     border-color: var(--primary);
+}
+
+/* Social Preview Styles */
+.social-preview {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.preview-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.preview-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.preview-info h4 {
+    margin: 0;
+    color: var(--dark);
+    font-size: 1.2rem;
+}
+
+.preview-username {
+    margin: 0.25rem 0 0 0;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.preview-bio {
+    color: var(--dark);
+    line-height: 1.5;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+}
+
+.preview-followers {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+.preview-link {
+    display: inline-block;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    transition: all 0.3s;
+}
+
+.preview-link:hover {
+    color: var(--primary-dark);
+    transform: translateX(3px);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
 }
 </style>
 
