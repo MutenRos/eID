@@ -6,6 +6,7 @@
     <title>{% block title %}eID{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <nav class="navbar">
@@ -15,6 +16,7 @@
                 {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('profile.my_profile') }}">Mi Perfil</a></li>
                     <li><a href="{{ url_for('contacts.index') }}">Contactos</a></li>
+                    <li><a href="{{ url_for('calendar.index') }}">📅 Calendario</a></li>
                     <li>
                         <a href="{{ url_for('chat.index') }}">
                             Chat
@@ -54,5 +56,6 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

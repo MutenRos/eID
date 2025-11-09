@@ -3,125 +3,490 @@
 {% block title %}Contactos - eID{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Tu código de amigo -->
-    <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
-        <h1 style="color: white;">🔐 Tu Código de Amigo</h1>
-        <div style="background: rgba(255,255,255,0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
-            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 0.3rem; text-align: center; font-family: 'Courier New', monospace;">
-                {{ friend_code }}
-            </div>
+<div class="contacts-layout">
+    <!-- Sidebar de carpetas -->
+    <div class="folders-sidebar">
+        <div class="sidebar-header">
+            <h3>📁 Carpetas</h3>
+            <button onclick="showCreateFolderModal()" class="btn-icon" title="Nueva carpeta">
+                ➕
+            </button>
         </div>
-        <p style="color: rgba(255,255,255,0.9); margin-top: 1rem;">
-            📱 Comparte este código con tus amigos para que puedan agregarte
-        </p>
-        <button onclick="copyFriendCode()" class="btn" style="background: white; color: var(--primary); margin-top: 1rem;">
-            📋 Copiar código
-        </button>
+        
+        <div class="folders-list">
+            <!-- Carpeta "Todos" (sin filtro) -->
+            <a href="{{ url_for('contacts.index') }}" 
+               class="folder-item {% if not active_folder %}active{% endif %}">
+                <span class="folder-icon">👥</span>
+                <span class="folder-name">Todos</span>
+                <span class="folder-count">{{ contacts|length }}</span>
+            </a>
+            
+            <!-- Carpetas del usuario -->
+            {% for folder in folders %}
+            <a href="{{ url_for('contacts.index', folder=folder.id) }}" 
+               class="folder-item {% if active_folder == folder.id|string %}active{% endif %}"
+               data-folder-id="{{ folder.id }}"
+               ondragover="handleDragOver(event)"
+               ondrop="handleDrop(event, {{ folder.id }})"
+               ondragleave="handleDragLeave(event)">
+                <span class="folder-icon" style="color: {{ folder.color }}">
+                    {% if folder.icon == 'folder' %}📁
+                    {% elif folder.icon == 'work' %}💼
+                    {% elif folder.icon == 'family' %}👨‍👩‍👧
+                    {% elif folder.icon == 'friends' %}🎉
+                    {% elif folder.icon == 'star' %}⭐
+                    {% else %}📂{% endif %}
+                </span>
+                <span class="folder-name">{{ folder.name }}</span>
+                <span class="folder-count">{{ folder.contacts_count }}</span>
+                <div class="folder-actions">
+                    <button onclick="editFolder({{ folder.id }}, '{{ folder.name }}', '{{ folder.color }}', '{{ folder.icon }}')" 
+                            class="btn-icon-small" title="Editar">✏️</button>
+                    <button onclick="deleteFolder({{ folder.id }}, '{{ folder.name }}')" 
+                            class="btn-icon-small" title="Eliminar">🗑️</button>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
     </div>
     
-    <!-- Agregar contacto por código -->
-    <div class="card">
-        <h2>➕ Agregar Nuevo Contacto</h2>
-        <p style="color: var(--gray); margin-bottom: 1.5rem;">
-            Ingresa el código de amigo de la persona que quieres agregar
-        </p>
-        
-        <form method="POST" action="{{ url_for('contacts.add') }}">
-            <div style="display: flex; gap: 1rem; align-items: end;">
-                <div class="form-group" style="flex: 1; margin: 0;">
-                    <label for="friend_code">Código de Amigo</label>
-                    <input type="text" 
-                           id="friend_code" 
-                           name="friend_code" 
-                           class="form-control" 
-                           placeholder="Ej: ABC123XY" 
-                           maxlength="12"
-                           pattern="[A-Z0-9]+"
-                           style="text-transform: uppercase; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 0.1rem;"
-                           required>
+    <!-- Contenido principal -->
+    <div class="contacts-content">
+        <!-- Tu código de amigo -->
+        <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+            <h1 style="color: white;">🔐 Tu Código de Amigo</h1>
+            <div style="background: rgba(255,255,255,0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
+                <div style="font-size: 2rem; font-weight: bold; letter-spacing: 0.3rem; text-align: center; font-family: 'Courier New', monospace;">
+                    {{ friend_code }}
                 </div>
-                <button type="submit" class="btn btn-primary" style="height: fit-content;">
-                    Enviar Solicitud
-                </button>
             </div>
+            <p style="color: rgba(255,255,255,0.9); margin-top: 1rem;">
+                📱 Comparte este código con tus amigos para que puedan agregarte
+            </p>
+            <button onclick="copyFriendCode()" class="btn" style="background: white; color: var(--primary); margin-top: 1rem;">
+                📋 Copiar código
+            </button>
+        </div>
+        
+        <!-- Agregar contacto por código -->
+        <div class="card">
+            <h2>➕ Agregar Nuevo Contacto</h2>
+            <p style="color: var(--gray); margin-bottom: 1.5rem;">
+                Ingresa el código de amigo de la persona que quieres agregar
+            </p>
+            
+            <form method="POST" action="{{ url_for('contacts.add') }}">
+                <div style="display: flex; gap: 1rem; align-items: end;">
+                    <div class="form-group" style="flex: 1; margin: 0;">
+                        <label for="friend_code">Código de Amigo</label>
+                        <input type="text" 
+                               id="friend_code" 
+                               name="friend_code" 
+                               class="form-control" 
+                               placeholder="Ej: ABC123XY" 
+                               maxlength="12"
+                               pattern="[A-Z0-9]+"
+                               style="text-transform: uppercase; font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 0.1rem;"
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height: fit-content;">
+                        Enviar Solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        {% if pending_received %}
+        <div class="card">
+            <h2>📬 Solicitudes recibidas ({{ pending_received|length }})</h2>
+            
+            <div class="grid grid-2">
+                {% for contact in pending_received %}
+                <div class="contact-request">
+                    <div>
+                        <strong>@{{ contact.username }}</strong>
+                        {% if contact.full_name %}
+                            <br>{{ contact.full_name }}
+                        {% endif %}
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <form method="POST" action="{{ url_for('contacts.accept', contact_id=contact.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-primary">Aceptar</button>
+                        </form>
+                        
+                        <form method="POST" action="{{ url_for('contacts.reject', contact_id=contact.id) }}" style="display: inline;">
+                            <button type="submit" class="btn" style="background: var(--danger); color: white;">Rechazar</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if contacts %}
+        <div class="card">
+            <h2>👥 Contactos {% if active_folder %}en esta carpeta{% else %}aceptados{% endif %} ({{ contacts|length }})</h2>
+            
+            <div class="grid grid-3">
+                {% for contact in contacts %}
+                    <div class="contact-card" 
+                         data-contact-id="{{ contact.id }}"
+                         draggable="true"
+                         ondragstart="handleDragStart(event, {{ contact.id }}, '{{ contact.username }}')"
+                         ondragend="handleDragEnd(event)">
+                        <span class="drag-handle" title="Arrastra para mover a carpeta">⋮⋮</span>
+                        <strong>@{{ contact.username }}</strong>
+                        {% if contact.full_name %}
+                            <br>{{ contact.full_name }}
+                        {% endif %}
+                        <br>
+                        <a href="{{ url_for('profile.view_contact', user_id=contact.id) }}">
+                            👤 Ver perfil
+                        </a>
+                        |
+                        <a href="{{ url_for('chat.conversation', user_id=contact.id) }}">
+                            💬 Chatear
+                        </a>
+                        <br><br>
+                        <button onclick="showMoveFolderModal({{ contact.id }}, '{{ contact.username }}')" 
+                                class="btn-small" style="font-size: 0.8rem;">
+                            📁 Mover a carpeta
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if pending_sent %}
+        <div class="card">
+            <h2>📤 Solicitudes enviadas ({{ pending_sent|length }})</h2>
+            
+            <div class="grid grid-3">
+                {% for contact in pending_sent %}
+                    <div class="contact-card" style="opacity: 0.6;">
+                        <strong>@{{ contact.username }}</strong>
+                        {% if contact.full_name %}
+                            <br>{{ contact.full_name }}
+                        {% endif %}
+                        <br><small>Pendiente de aceptación</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para crear carpeta -->
+<div id="createFolderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>➕ Nueva Carpeta</h2>
+            <button onclick="closeModal('createFolderModal')" class="btn-icon">✖️</button>
+        </div>
+        <form id="createFolderForm" onsubmit="createFolder(event)">
+            <div class="form-group">
+                <label>Nombre de la carpeta</label>
+                <input type="text" name="name" class="form-control" required maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label>Icono</label>
+                <div class="icon-picker">
+                    <label><input type="radio" name="icon" value="folder" checked> 📁 Carpeta</label>
+                    <label><input type="radio" name="icon" value="work"> 💼 Trabajo</label>
+                    <label><input type="radio" name="icon" value="family"> 👨‍👩‍👧 Familia</label>
+                    <label><input type="radio" name="icon" value="friends"> 🎉 Amigos</label>
+                    <label><input type="radio" name="icon" value="star"> ⭐ Favoritos</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Color</label>
+                <input type="color" name="color" value="#6366f1" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Crear</button>
         </form>
     </div>
-    
-    {% if pending_received %}
-    <div class="card">
-        <h2>Solicitudes recibidas ({{ pending_received|length }})</h2>
-        
-        <div class="grid grid-2">
-            {% for contact in pending_received %}
-            <div class="contact-request">
-                <div>
-                    <strong>@{{ contact.username }}</strong>
-                    {% if contact.full_name %}
-                        <br>{{ contact.full_name }}
-                    {% endif %}
-                </div>
-                
-                <div style="display: flex; gap: 0.5rem;">
-                    <form method="POST" action="{{ url_for('contacts.accept', contact_id=contact.id) }}" style="display: inline;">
-                        <button type="submit" class="btn btn-primary">Aceptar</button>
-                    </form>
-                    
-                    <form method="POST" action="{{ url_for('contacts.reject', contact_id=contact.id) }}" style="display: inline;">
-                        <button type="submit" class="btn" style="background: var(--danger); color: white;">Rechazar</button>
-                    </form>
+</div>
+
+<!-- Modal para editar carpeta -->
+<div id="editFolderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✏️ Editar Carpeta</h2>
+            <button onclick="closeModal('editFolderModal')" class="btn-icon">✖️</button>
+        </div>
+        <form id="editFolderForm" onsubmit="updateFolder(event)">
+            <input type="hidden" name="folder_id" id="edit_folder_id">
+            
+            <div class="form-group">
+                <label>Nombre de la carpeta</label>
+                <input type="text" name="name" id="edit_folder_name" class="form-control" required maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label>Icono</label>
+                <div class="icon-picker">
+                    <label><input type="radio" name="icon" value="folder"> 📁 Carpeta</label>
+                    <label><input type="radio" name="icon" value="work"> 💼 Trabajo</label>
+                    <label><input type="radio" name="icon" value="family"> 👨‍👩‍👧 Familia</label>
+                    <label><input type="radio" name="icon" value="friends"> 🎉 Amigos</label>
+                    <label><input type="radio" name="icon" value="star"> ⭐ Favoritos</label>
                 </div>
             </div>
-            {% endfor %}
-        </div>
+            
+            <div class="form-group">
+                <label>Color</label>
+                <input type="color" name="color" id="edit_folder_color" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
     </div>
-    {% endif %}
-    
-    {% if contacts %}
-    <div class="card">
-        <h2>Contactos aceptados ({{ contacts|length }})</h2>
-        
-        <div class="grid grid-3">
-            {% for contact in contacts %}
-                <div class="contact-card">
-                    <strong>@{{ contact.username }}</strong>
-                    {% if contact.full_name %}
-                        <br>{{ contact.full_name }}
-                    {% endif %}
-                    <br>
-                    <a href="{{ url_for('profile.view_contact', user_id=contact.id) }}">
-                        👤 Ver perfil
-                    </a>
-                    |
-                    <a href="{{ url_for('chat.conversation', user_id=contact.id) }}">
-                        💬 Chatear
-                    </a>
-                </div>
-            {% endfor %}
+</div>
+
+<!-- Modal para mover contacto -->
+<div id="moveFolderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📁 Mover Contacto</h2>
+            <button onclick="closeModal('moveFolderModal')" class="btn-icon">✖️</button>
         </div>
+        <p id="moveContactInfo"></p>
+        <form id="moveFolderForm" onsubmit="moveToFolder(event)">
+            <input type="hidden" name="contact_id" id="move_contact_id">
+            
+            <div class="form-group">
+                <label>Selecciona la carpeta</label>
+                <select name="folder_id" class="form-control">
+                    <option value="">Sin carpeta</option>
+                    {% for folder in folders %}
+                    <option value="{{ folder.id }}">{{ folder.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Mover</button>
+        </form>
     </div>
-    {% endif %}
-    
-    {% if pending_sent %}
-    <div class="card">
-        <h2>Solicitudes enviadas ({{ pending_sent|length }})</h2>
-        
-        <div class="grid grid-3">
-            {% for contact in pending_sent %}
-                <div class="contact-card" style="opacity: 0.6;">
-                    <strong>@{{ contact.username }}</strong>
-                    {% if contact.full_name %}
-                        <br>{{ contact.full_name }}
-                    {% endif %}
-                    <br><small>Pendiente de aceptación</small>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <style>
+.contacts-layout {
+    display: flex;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.folders-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.folders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.folder-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--gray-light);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--dark);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.folder-item:hover {
+    background: #e0e0e0;
+    transform: translateX(5px);
+}
+
+.folder-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.folder-item.active .folder-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.folder-icon {
+    font-size: 1.2rem;
+}
+
+.folder-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.folder-count {
+    background: var(--gray);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.folder-actions {
+    display: none;
+    gap: 0.25rem;
+    position: absolute;
+    right: 1rem;
+    background: inherit;
+    padding: 0.25rem;
+    border-radius: 5px;
+}
+
+.folder-item:hover .folder-actions {
+    display: flex;
+}
+
+.folder-item:hover .folder-count {
+    display: none;
+}
+
+.contacts-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon-small {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.2rem;
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--primary);
+    background: white;
+    color: var(--primary);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+}
+
+.icon-picker {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.icon-picker label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 2px solid var(--gray-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-picker label:hover {
+    border-color: var(--primary);
+}
+
+.icon-picker input[type="radio"] {
+    margin: 0;
+}
+
+.icon-picker input[type="radio"]:checked + label,
+.icon-picker label:has(input[type="radio"]:checked) {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
 .contact-request {
     display: flex;
     justify-content: space-between;
@@ -136,6 +501,44 @@
     background: var(--gray-light);
     border-radius: 10px;
     text-align: center;
+    cursor: grab;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.contact-card:active {
+    cursor: grabbing;
+}
+
+.contact-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1rem;
+    color: var(--gray);
+    cursor: grab;
+    line-height: 1;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.folder-item.drag-over {
+    background: var(--primary) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.folder-item.drag-over .folder-count {
+    background: rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
 }
 
 .contact-card a {
@@ -146,15 +549,60 @@
 .contact-card a:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+    .contacts-layout {
+        flex-direction: column;
+    }
+    
+    .folders-sidebar {
+        width: 100%;
+    }
+    
+    .folders-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .folder-item {
+        min-width: 150px;
+    }
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--dark);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 10000;
+    font-weight: 500;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
 </style>
 
 <script>
+// Variables globales para drag & drop
+let draggedContactId = null;
+let draggedContactUsername = null;
+
 function copyFriendCode() {
     const code = "{{ friend_code }}";
     navigator.clipboard.writeText(code).then(() => {
         alert('✅ Código copiado: ' + code);
     }).catch(() => {
-        // Fallback para navegadores antiguos
         const textArea = document.createElement('textarea');
         textArea.value = code;
         document.body.appendChild(textArea);
@@ -163,6 +611,239 @@ function copyFriendCode() {
         document.body.removeChild(textArea);
         alert('✅ Código copiado: ' + code);
     });
+}
+
+// ===== DRAG & DROP FUNCTIONS =====
+
+function handleDragStart(e, contactId, username) {
+    draggedContactId = contactId;
+    draggedContactUsername = username;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+    
+    // Crear imagen de arrastre personalizada
+    const dragImage = e.currentTarget.cloneNode(true);
+    dragImage.style.opacity = '0.8';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+}
+
+function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    // Limpiar todas las clases drag-over
+    document.querySelectorAll('.folder-item').forEach(folder => {
+        folder.classList.remove('drag-over');
+    });
+}
+
+function handleDragOver(e) {
+    e.preventDefault(); // Necesario para permitir el drop
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const folderItem = e.currentTarget;
+    if (!folderItem.classList.contains('drag-over')) {
+        folderItem.classList.add('drag-over');
+    }
+    
+    return false;
+}
+
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+async function handleDrop(e, folderId) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const folderItem = e.currentTarget;
+    folderItem.classList.remove('drag-over');
+    
+    if (!draggedContactId) return;
+    
+    try {
+        const response = await fetch('{{ url_for("contacts.move_to_folder") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contact_id: draggedContactId,
+                folder_id: folderId
+            })
+        });
+        
+        if (response.ok) {
+            // Mostrar feedback visual
+            showToast(`📁 @${draggedContactUsername} movido a ${folderItem.querySelector('.folder-name').textContent}`);
+            // Recargar después de un momento para que el usuario vea el feedback
+            setTimeout(() => location.reload(), 500);
+        } else {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'No se pudo mover el contacto'));
+        }
+    } catch (error) {
+        alert('Error al mover el contacto');
+    }
+    
+    draggedContactId = null;
+    draggedContactUsername = null;
+    
+    return false;
+}
+
+function showToast(message) {
+    // Crear toast notification
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Mostrar con animación
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Ocultar después de 2 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => document.body.removeChild(toast), 300);
+    }, 2000);
+}
+
+// ===== MODAL FUNCTIONS =====
+
+function showCreateFolderModal() {
+    document.getElementById('createFolderModal').classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+async function createFolder(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('{{ url_for("contacts.create_folder") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: formData.get('name'),
+                icon: formData.get('icon'),
+                color: formData.get('color')
+            })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'No se pudo crear la carpeta'));
+        }
+    } catch (error) {
+        alert('Error al crear la carpeta');
+    }
+}
+
+function editFolder(id, name, color, icon) {
+    document.getElementById('edit_folder_id').value = id;
+    document.getElementById('edit_folder_name').value = name;
+    document.getElementById('edit_folder_color').value = color;
+    document.querySelector(`#editFolderForm input[name="icon"][value="${icon}"]`).checked = true;
+    document.getElementById('editFolderModal').classList.add('show');
+}
+
+async function updateFolder(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const folderId = formData.get('folder_id');
+    
+    try {
+        const response = await fetch(`{{ url_for("contacts.edit_folder", folder_id=0) }}`.replace('/0/', `/${folderId}/`), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: formData.get('name'),
+                icon: formData.get('icon'),
+                color: formData.get('color')
+            })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'No se pudo actualizar la carpeta'));
+        }
+    } catch (error) {
+        alert('Error al actualizar la carpeta');
+    }
+}
+
+function deleteFolder(id, name) {
+    if (!confirm(`¿Eliminar la carpeta "${name}"?\n\nLos contactos no se eliminarán, solo quedarán sin carpeta.`)) {
+        return;
+    }
+    
+    fetch(`{{ url_for("contacts.delete_folder", folder_id=0) }}`.replace('/0/', `/${id}/`), {
+        method: 'POST'
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert('Error al eliminar la carpeta');
+        }
+    });
+}
+
+function showMoveFolderModal(contactId, username) {
+    document.getElementById('move_contact_id').value = contactId;
+    document.getElementById('moveContactInfo').textContent = `Mover a @${username} a:`;
+    document.getElementById('moveFolderModal').classList.add('show');
+}
+
+async function moveToFolder(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('{{ url_for("contacts.move_to_folder") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contact_id: formData.get('contact_id'),
+                folder_id: formData.get('folder_id') || null
+            })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'No se pudo mover el contacto'));
+        }
+    } catch (error) {
+        alert('Error al mover el contacto');
+    }
+}
+
+// Cerrar modales al hacer clic fuera
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('show');
+    }
 }
 </script>
 {% endblock %}

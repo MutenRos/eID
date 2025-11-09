@@ -40,7 +40,7 @@ class Database:
     
     def execute_query(self, query, params=None):
         """Ejecutar query (INSERT, UPDATE, DELETE)"""
-        cursor = self.connection.cursor()
+        cursor = self.connection.cursor(buffered=True)
         try:
             if params:
                 cursor.execute(query, params)
@@ -56,14 +56,15 @@ class Database:
             cursor.close()
     
     def fetch_one(self, query, params=None):
-        """Obtener un resultado"""
-        cursor = self.connection.cursor(dictionary=True)
+        """Obtener un solo resultado"""
+        cursor = self.connection.cursor(dictionary=True, buffered=True)
         try:
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-            return cursor.fetchone()
+            result = cursor.fetchone()
+            return result
         except Error as e:
             print(f"Error en fetch_one: {e}")
             return None
@@ -72,7 +73,7 @@ class Database:
     
     def fetch_all(self, query, params=None):
         """Obtener todos los resultados"""
-        cursor = self.connection.cursor(dictionary=True)
+        cursor = self.connection.cursor(dictionary=True, buffered=True)
         try:
             if params:
                 cursor.execute(query, params)

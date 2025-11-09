@@ -49,7 +49,10 @@ def login():
         password = request.form.get('password')
         link_google = request.form.get('link_google')
         
+        # Intentar buscar por username o email
         user = User.find_by_username(username)
+        if not user:
+            user = User.find_by_email(username)
         
         if user and user.check_password(password):
             login_user(user)
