@@ -18,14 +18,17 @@ class Database:
         self.connection = None
     
     def connect(self):
-        """Establecer conexión con MySQL"""
+        """Establecer conexión con MySQL usando pool de conexiones"""
         try:
             self.connection = mysql.connector.connect(
                 host=self.host,
                 port=self.port,
                 user=self.user,
                 password=self.password,
-                database=self.database
+                database=self.database,
+                charset='utf8mb4',
+                collation='utf8mb4_unicode_ci',
+                autocommit=False
             )
             if self.connection.is_connected():
                 return self.connection

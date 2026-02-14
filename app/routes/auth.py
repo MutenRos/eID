@@ -16,9 +16,20 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def register():
     """Registro de usuario"""
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        
+        # Validar longitud mínima de contraseña
+        if len(password) < 6:
+            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+            return redirect(url_for('auth.register'))
+        
+        # Validar formato de username (solo letras, números y guiones)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]{3,30}$', username):
+            flash('El nombre de usuario solo puede tener letras, números, guiones y de 3 a 30 caracteres', 'error')
+            return redirect(url_for('auth.register'))
         
         # Validaciones
         if User.find_by_username(username):

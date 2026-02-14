@@ -43,10 +43,15 @@ def conversation(user_id):
 @login_required
 def send_message(user_id):
     """Enviar mensaje"""
-    content = request.form.get('content')
+    content = request.form.get('content', '').strip()
     
-    if not content or len(content.strip()) == 0:
+    if not content or len(content) == 0:
         flash('El mensaje no puede estar vacío', 'error')
+        return redirect(url_for('chat.conversation', user_id=user_id))
+    
+    # Limitar longitud del mensaje a 2000 caracteres
+    if len(content) > 2000:
+        flash('El mensaje no puede superar los 2000 caracteres', 'error')
         return redirect(url_for('chat.conversation', user_id=user_id))
     
     Message.create(current_user.id, user_id, content)

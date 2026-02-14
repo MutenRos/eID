@@ -71,3 +71,34 @@ const chatMessages = document.getElementById('chat-messages');
 if (chatMessages) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
+// Contador de caracteres para el campo de mensaje del chat
+const chatInput = document.querySelector('.chat-form input[name="content"]');
+if (chatInput) {
+    const maxLen = 2000;
+    const counter = document.createElement('div');
+    counter.className = 'char-counter';
+    counter.textContent = `0 / ${maxLen}`;
+    chatInput.parentElement.insertBefore(counter, chatInput.nextSibling);
+    
+    chatInput.addEventListener('input', function() {
+        const len = this.value.length;
+        counter.textContent = `${len} / ${maxLen}`;
+        counter.className = 'char-counter' + 
+            (len > maxLen * 0.9 ? ' danger' : len > maxLen * 0.75 ? ' warning' : '');
+    });
+}
+
+// Confirmación antes de eliminar contactos o carpetas
+function confirmarAccion(mensaje) {
+    return confirm(mensaje || '¿Estás seguro de realizar esta acción?');
+}
+
+// Copiar texto al portapapeles con feedback visual
+function copiarAlPortapapeles(texto, boton) {
+    navigator.clipboard.writeText(texto).then(function() {
+        const textoOriginal = boton.textContent;
+        boton.textContent = '✅ Copiado';
+        setTimeout(function() { boton.textContent = textoOriginal; }, 2000);
+    });
+}

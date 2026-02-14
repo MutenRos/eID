@@ -38,10 +38,24 @@
             
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+                <input type="password" id="password" name="password" class="form-control" 
+                       minlength="6" placeholder="Mínimo 6 caracteres" required>
+                <div class="char-counter" id="password-strength"></div>
             </div>
             
             <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarse</button>
+            
+            <script>
+            // Indicador de fuerza de contraseña
+            document.getElementById('password').addEventListener('input', function() {
+                var indicator = document.getElementById('password-strength');
+                var len = this.value.length;
+                if (len === 0) { indicator.textContent = ''; }
+                else if (len < 6) { indicator.textContent = '🔴 Muy corta'; indicator.className = 'char-counter danger'; }
+                else if (len < 10) { indicator.textContent = '🟡 Aceptable'; indicator.className = 'char-counter warning'; }
+                else { indicator.textContent = '🟢 Fuerte'; indicator.className = 'char-counter'; }
+            });
+            </script>
         </form>
         
         <p style="text-align: center; margin-top: 1.5rem;">
