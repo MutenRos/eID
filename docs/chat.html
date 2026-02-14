@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat — eID</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">eID</a>
+            <ul class="nav-menu">
+                <li><a href="profile.html">Perfil</a></li>
+                <li><a href="contacts.html">Contactos</a></li>
+                <li><a href="calendar.html">Agenda</a></li>
+                <li><a href="chat.html" style="background:var(--primary);color:white;">Chat <span class="badge">3</span></a></li>
+                <li><a href="login.html">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content" style="padding:2rem 0;">
+        <div class="container" style="display:grid;grid-template-columns:280px 1fr;gap:2rem;">
+            <!-- Lista de conversaciones -->
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div style="background:var(--primary);color:white;padding:1rem;">
+                    <h3>💬 Conversaciones</h3>
+                </div>
+                <ul class="chat-list">
+                    <li style="background:rgba(102,126,234,0.08);">
+                        <div class="contact-avatar" style="width:40px;height:40px;font-size:1rem;">A</div>
+                        <div style="flex:1;">
+                            <strong>ana_garcia</strong>
+                            <small style="display:block;color:var(--gray);">¡Genial, nos vemos!</small>
+                        </div>
+                        <span class="badge">2</span>
+                    </li>
+                    <li>
+                        <div class="contact-avatar" style="width:40px;height:40px;font-size:1rem;background:var(--secondary);">C</div>
+                        <div style="flex:1;">
+                            <strong>carlos_dev</strong>
+                            <small style="display:block;color:var(--gray);">¿Has visto el repo?</small>
+                        </div>
+                        <span class="badge">1</span>
+                    </li>
+                    <li>
+                        <div class="contact-avatar" style="width:40px;height:40px;font-size:1rem;background:#e67e22;">L</div>
+                        <div style="flex:1;">
+                            <strong>lucia_rm</strong>
+                            <small style="display:block;color:var(--gray);">Gracias por la ayuda 👍</small>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="contact-avatar" style="width:40px;height:40px;font-size:1rem;background:#2ecc71;">P</div>
+                        <div style="flex:1;">
+                            <strong>pablo_code</strong>
+                            <small style="display:block;color:var(--gray);">El deploy funciona!</small>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Ventana de chat -->
+            <div class="card" style="display:flex;flex-direction:column;padding:0;overflow:hidden;">
+                <div style="background:var(--primary);color:white;padding:1rem;display:flex;align-items:center;gap:1rem;">
+                    <div class="contact-avatar" style="width:36px;height:36px;font-size:0.9rem;border:2px solid white;">A</div>
+                    <div>
+                        <strong>ana_garcia</strong>
+                        <small style="display:block;opacity:.8;">En línea</small>
+                    </div>
+                </div>
+
+                <div class="chat-messages" style="flex:1;border-radius:0;">
+                    <div class="message message-received">
+                        <div class="message-content">¡Hola Darío! ¿Qué tal va el proyecto de eID?</div>
+                        <span class="message-time">10:32</span>
+                    </div>
+                    <div class="message message-sent">
+                        <div class="message-content">¡Muy bien! Ya tengo el sistema de contactos y el chat funcionando 🎉</div>
+                        <span class="message-time">10:34 ✓✓</span>
+                    </div>
+                    <div class="message message-received">
+                        <div class="message-content">¡Qué guay! ¿Y qué tecnologías estás usando?</div>
+                        <span class="message-time">10:35</span>
+                    </div>
+                    <div class="message message-sent">
+                        <div class="message-content">Flask + MySQL para el backend y CSS3 con custom properties para el frontend. También integré Google OAuth 2.0 para el login 🔒</div>
+                        <span class="message-time">10:37 ✓✓</span>
+                    </div>
+                    <div class="message message-received">
+                        <div class="message-content">Suena genial, ¿me pasas el repo?</div>
+                        <span class="message-time">10:38</span>
+                    </div>
+                    <div class="message message-sent">
+                        <div class="message-content">Claro! github.com/MutenRos/eID — échale un vistazo y me dices 😊</div>
+                        <span class="message-time">10:40 ✓✓</span>
+                    </div>
+                    <div class="message message-received">
+                        <div class="message-content">¡Genial, nos vemos!</div>
+                        <span class="message-time">10:42</span>
+                    </div>
+                </div>
+
+                <div style="padding:1rem;border-top:1px solid var(--light);">
+                    <form class="chat-form" onsubmit="event.preventDefault();alert('Mockup estático — en la app real el mensaje se envía por Flask.')">
+                        <input type="text" class="form-control" placeholder="Escribe un mensaje..." maxlength="2000">
+                        <button type="submit" class="btn btn-success">Enviar</button>
+                    </form>
+                    <small style="color:var(--gray);font-size:.75rem;margin-top:.25rem;display:block;">Máx. 2000 caracteres</small>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>eID — Meta Red Social · <a href="https://github.com/MutenRos/eID" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>

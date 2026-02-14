@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda — eID</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">eID</a>
+            <ul class="nav-menu">
+                <li><a href="profile.html">Perfil</a></li>
+                <li><a href="contacts.html">Contactos</a></li>
+                <li><a href="calendar.html" style="background:var(--primary);color:white;">Agenda</a></li>
+                <li><a href="chat.html">Chat <span class="badge">3</span></a></li>
+                <li><a href="login.html">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content" style="padding:2rem 0;">
+        <div class="container">
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+                    <h1 style="border:none;padding:0;margin:0;">📅 Agenda — Junio 2025</h1>
+                    <button class="btn btn-success" onclick="alert('Mockup estático — se abriría el formulario de nuevo evento.')">+ Nuevo Evento</button>
+                </div>
+
+                <div class="calendar-grid">
+                    <div class="calendar-header">Lun</div>
+                    <div class="calendar-header">Mar</div>
+                    <div class="calendar-header">Mié</div>
+                    <div class="calendar-header">Jue</div>
+                    <div class="calendar-header">Vie</div>
+                    <div class="calendar-header">Sáb</div>
+                    <div class="calendar-header">Dom</div>
+
+                    <!-- Semana 1 (Jun empieza Domingo → huecos Lun-Sáb) -->
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">26</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">27</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">28</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">29</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">30</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">31</span></div>
+                    <div class="calendar-day"><span class="day-number">1</span></div>
+
+                    <!-- Semana 2 -->
+                    <div class="calendar-day"><span class="day-number">2</span></div>
+                    <div class="calendar-day"><span class="day-number">3</span>
+                        <div class="calendar-event" style="background:var(--primary);">🎓 Examen BD</div>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">4</span></div>
+                    <div class="calendar-day"><span class="day-number">5</span></div>
+                    <div class="calendar-day"><span class="day-number">6</span>
+                        <div class="calendar-event" style="background:var(--success);">📦 Deploy eID</div>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">7</span></div>
+                    <div class="calendar-day"><span class="day-number">8</span></div>
+
+                    <!-- Semana 3 -->
+                    <div class="calendar-day"><span class="day-number">9</span></div>
+                    <div class="calendar-day"><span class="day-number">10</span></div>
+                    <div class="calendar-day"><span class="day-number">11</span></div>
+                    <div class="calendar-day today"><span class="day-number">12</span></div>
+                    <div class="calendar-day"><span class="day-number">13</span>
+                        <div class="calendar-event" style="background:#e67e22;">☕ Café con Ana</div>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">14</span></div>
+                    <div class="calendar-day"><span class="day-number">15</span></div>
+
+                    <!-- Semana 4 -->
+                    <div class="calendar-day"><span class="day-number">16</span></div>
+                    <div class="calendar-day"><span class="day-number">17</span></div>
+                    <div class="calendar-day"><span class="day-number">18</span>
+                        <div class="calendar-event" style="background:var(--secondary);">💻 Hackathon</div>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">19</span></div>
+                    <div class="calendar-day"><span class="day-number">20</span></div>
+                    <div class="calendar-day"><span class="day-number">21</span></div>
+                    <div class="calendar-day"><span class="day-number">22</span></div>
+
+                    <!-- Semana 5 -->
+                    <div class="calendar-day"><span class="day-number">23</span></div>
+                    <div class="calendar-day"><span class="day-number">24</span>
+                        <div class="calendar-event" style="background:var(--danger);">📋 Presentación</div>
+                    </div>
+                    <div class="calendar-day"><span class="day-number">25</span></div>
+                    <div class="calendar-day"><span class="day-number">26</span></div>
+                    <div class="calendar-day"><span class="day-number">27</span></div>
+                    <div class="calendar-day"><span class="day-number">28</span></div>
+                    <div class="calendar-day"><span class="day-number">29</span></div>
+
+                    <!-- Semana 6 -->
+                    <div class="calendar-day"><span class="day-number">30</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">1</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">2</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">3</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">4</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">5</span></div>
+                    <div class="calendar-day" style="opacity:.4;"><span class="day-number">6</span></div>
+                </div>
+            </div>
+
+            <!-- Próximos eventos -->
+            <div class="card">
+                <h2>📋 Próximos Eventos</h2>
+                <div style="margin-top:1rem;">
+                    <div style="display:flex;gap:1rem;padding:1rem;border-left:4px solid var(--primary);background:var(--gray-light);border-radius:0 8px 8px 0;margin-bottom:1rem;">
+                        <div>
+                            <strong>🎓 Examen de Bases de Datos</strong>
+                            <p style="color:var(--gray);font-size:.85rem;">3 Jun 2025 — 09:00</p>
+                            <small>Participantes: dario_dev, ana_garcia, carlos_dev</small>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:1rem;padding:1rem;border-left:4px solid var(--success);background:var(--gray-light);border-radius:0 8px 8px 0;margin-bottom:1rem;">
+                        <div>
+                            <strong>📦 Deploy eID v1.0</strong>
+                            <p style="color:var(--gray);font-size:.85rem;">6 Jun 2025 — 17:00</p>
+                            <small>Participantes: dario_dev</small>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:1rem;padding:1rem;border-left:4px solid #e67e22;background:var(--gray-light);border-radius:0 8px 8px 0;">
+                        <div>
+                            <strong>☕ Café con Ana</strong>
+                            <p style="color:var(--gray);font-size:.85rem;">13 Jun 2025 — 11:00</p>
+                            <small>Participantes: dario_dev, ana_garcia</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>eID — Meta Red Social · <a href="https://github.com/MutenRos/eID" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>

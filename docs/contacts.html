@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactos — eID</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">eID</a>
+            <ul class="nav-menu">
+                <li><a href="profile.html">Perfil</a></li>
+                <li><a href="contacts.html" style="background:var(--primary);color:white;">Contactos</a></li>
+                <li><a href="calendar.html">Agenda</a></li>
+                <li><a href="chat.html">Chat <span class="badge">3</span></a></li>
+                <li><a href="login.html">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content" style="padding:2rem 0;">
+        <div class="container">
+            <!-- Friend Code -->
+            <div class="friend-code-box">
+                <h2>Tu Código de Amigo</h2>
+                <div class="friend-code">A3X-9K7</div>
+                <p>Comparte este código para que te añadan como contacto</p>
+                <button class="btn btn-primary" style="margin-top:1rem;" onclick="navigator.clipboard.writeText('A3X-9K7').then(()=>this.textContent='✅ Copiado!').catch(()=>{})">📋 Copiar Código</button>
+            </div>
+
+            <!-- Añadir contacto -->
+            <div class="card">
+                <h2>➕ Añadir Contacto</h2>
+                <form style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+                    <input type="text" class="form-control" placeholder="Introduce el Friend Code" style="flex:1;min-width:200px;">
+                    <button type="button" class="btn btn-success" onclick="alert('Mockup estático — se enviaría solicitud de contacto.')">Enviar Solicitud</button>
+                </form>
+            </div>
+
+            <!-- Solicitudes pendientes -->
+            <div class="card">
+                <h2>📬 Solicitudes Pendientes</h2>
+                <div class="contact-list" style="margin-top:1rem;">
+                    <div class="contact-card" style="border-color:var(--warning);">
+                        <div class="contact-avatar" style="background:var(--warning);">M</div>
+                        <div class="contact-info">
+                            <strong>maria_lopez</strong>
+                            <small>Solicitud recibida hace 2h</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-success" style="font-size:.8rem;padding:.3rem .6rem;">✓ Aceptar</button>
+                            <button class="btn btn-danger">✗</button>
+                        </div>
+                    </div>
+                    <div class="contact-card" style="border-color:var(--warning);">
+                        <div class="contact-avatar" style="background:var(--warning);">J</div>
+                        <div class="contact-info">
+                            <strong>juan_tech</strong>
+                            <small>Solicitud enviada hace 1 día</small>
+                        </div>
+                        <div><span style="color:var(--gray);font-size:.85rem;">Pendiente…</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contactos aceptados -->
+            <div class="card">
+                <h2>👥 Mis Contactos</h2>
+                <div class="contact-list" style="margin-top:1rem;">
+                    <div class="contact-card">
+                        <div class="contact-avatar">A</div>
+                        <div class="contact-info">
+                            <strong>ana_garcia</strong>
+                            <small>Conectados desde 15 Ene 2025</small>
+                        </div>
+                        <a href="chat.html" class="btn btn-primary" style="font-size:.8rem;padding:.3rem .8rem;">💬</a>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-avatar" style="background:var(--secondary);">C</div>
+                        <div class="contact-info">
+                            <strong>carlos_dev</strong>
+                            <small>Conectados desde 22 Feb 2025</small>
+                        </div>
+                        <a href="chat.html" class="btn btn-primary" style="font-size:.8rem;padding:.3rem .8rem;">💬</a>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-avatar" style="background:#e67e22;">L</div>
+                        <div class="contact-info">
+                            <strong>lucia_rm</strong>
+                            <small>Conectados desde 5 Mar 2025</small>
+                        </div>
+                        <a href="chat.html" class="btn btn-primary" style="font-size:.8rem;padding:.3rem .8rem;">💬</a>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-avatar" style="background:#2ecc71;">P</div>
+                        <div class="contact-info">
+                            <strong>pablo_code</strong>
+                            <small>Conectados desde 10 Mar 2025</small>
+                        </div>
+                        <a href="chat.html" class="btn btn-primary" style="font-size:.8rem;padding:.3rem .8rem;">💬</a>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-avatar" style="background:#8e44ad;">R</div>
+                        <div class="contact-info">
+                            <strong>rosa_web</strong>
+                            <small>Conectados desde 18 Mar 2025</small>
+                        </div>
+                        <a href="chat.html" class="btn btn-primary" style="font-size:.8rem;padding:.3rem .8rem;">💬</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>eID — Meta Red Social · <a href="https://github.com/MutenRos/eID" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>

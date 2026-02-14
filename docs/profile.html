@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil — eID</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">eID</a>
+            <ul class="nav-menu">
+                <li><a href="profile.html" style="background:var(--primary);color:white;">Perfil</a></li>
+                <li><a href="contacts.html">Contactos</a></li>
+                <li><a href="calendar.html">Agenda</a></li>
+                <li><a href="chat.html">Chat <span class="badge">3</span></a></li>
+                <li><a href="login.html">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content" style="padding:2rem 0;">
+        <div class="container">
+            <!-- Cabecera del perfil -->
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <h1>dario_dev</h1>
+                <p>dario.ejemplo@gmail.com</p>
+                <p style="margin-top:.5rem;opacity:.8;">🔗 Friend Code: <strong>A3X-9K7</strong></p>
+            </div>
+
+            <!-- Biografía -->
+            <div class="card">
+                <h2>📝 Sobre mí</h2>
+                <p style="font-size:1.1rem;color:#555;">Desarrollador web apasionado por Flask y las bases de datos relacionales. Creador de eID — mi meta red social para conectar con otros profesionales del sector.</p>
+                <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+                    <span class="tech-item">📍 Murcia, España</span>
+                    <span class="tech-item">🎓 DAM 2024</span>
+                    <span class="tech-item">💼 Full Stack Jr.</span>
+                </div>
+            </div>
+
+            <!-- Redes sociales -->
+            <div class="card">
+                <h2>🌐 Mis Redes Sociales</h2>
+                <div class="social-grid" style="margin-top:1rem;">
+                    <a href="#" class="social-card">
+                        <span class="social-icon">📸</span>
+                        <div>
+                            <strong>Instagram</strong>
+                            <small style="display:block;color:var(--gray);">@dario_dev</small>
+                        </div>
+                    </a>
+                    <a href="#" class="social-card">
+                        <span class="social-icon">🐦</span>
+                        <div>
+                            <strong>Twitter / X</strong>
+                            <small style="display:block;color:var(--gray);">@dario_dev</small>
+                        </div>
+                    </a>
+                    <a href="#" class="social-card">
+                        <span class="social-icon">💼</span>
+                        <div>
+                            <strong>LinkedIn</strong>
+                            <small style="display:block;color:var(--gray);">dario-ejemplo</small>
+                        </div>
+                    </a>
+                    <a href="https://github.com/MutenRos" class="social-card">
+                        <span class="social-icon">🐙</span>
+                        <div>
+                            <strong>GitHub</strong>
+                            <small style="display:block;color:var(--gray);">MutenRos</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="card">
+                <h2>📊 Estadísticas</h2>
+                <div class="tech-grid" style="margin-top:1rem;">
+                    <div class="tech-item">
+                        <div style="font-size:2rem;font-weight:bold;color:var(--primary);">7</div>
+                        <div>Contactos</div>
+                    </div>
+                    <div class="tech-item">
+                        <div style="font-size:2rem;font-weight:bold;color:var(--primary);">24</div>
+                        <div>Mensajes enviados</div>
+                    </div>
+                    <div class="tech-item">
+                        <div style="font-size:2rem;font-weight:bold;color:var(--primary);">4</div>
+                        <div>Redes sociales</div>
+                    </div>
+                    <div class="tech-item">
+                        <div style="font-size:2rem;font-weight:bold;color:var(--primary);">3</div>
+                        <div>Eventos creados</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón editar -->
+            <div style="text-align:center;margin-top:1rem;">
+                <button class="btn btn-success" onclick="alert('Mockup estático — la edición de perfil opera en la app real.')">✏️ Editar perfil</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>eID — Meta Red Social · <a href="https://github.com/MutenRos/eID" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>

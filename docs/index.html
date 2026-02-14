@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="eID — Meta Red Social. Tarjeta de visita digital con agregación de redes sociales, agenda de contactos y chat.">
+    <title>eID — Tu Identidad Digital</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">eID</a>
+            <ul class="nav-menu">
+                <li><a href="profile.html">Mi Perfil</a></li>
+                <li><a href="contacts.html">Contactos</a></li>
+                <li><a href="calendar.html">📅 Calendario</a></li>
+                <li><a href="chat.html">Chat <span class="badge">3</span></a></li>
+                <li><a href="login.html">Iniciar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero">
+            <div class="container">
+                <h1>eID — Tu Identidad Digital</h1>
+                <p class="tagline">Una tarjeta de visita online que reúne todas tus redes sociales</p>
+
+                <div class="hero-features">
+                    <div class="feature">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Meta Red Social</h3>
+                        <p>Conecta todas tus redes en un solo lugar</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">👥</div>
+                        <h3>Agenda de Contactos</h3>
+                        <p>Gestiona tus conexiones profesionales</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">💬</div>
+                        <h3>Chat Integrado</h3>
+                        <p>Comunícate con tus contactos</p>
+                    </div>
+                </div>
+
+                <div class="cta-buttons">
+                    <a href="register.html" class="btn btn-primary">Crear mi eID</a>
+                    <a href="login.html" class="btn btn-secondary">Iniciar Sesión</a>
+                </div>
+            </div>
+        </div>
+
+        <section class="about-section">
+            <div class="container">
+                <h2>¿Qué es eID?</h2>
+                <p>
+                    eID es tu tarjeta de visita digital que centraliza tu presencia en internet.
+                    Comparte un único enlace con todas tus redes sociales, conecta con profesionales
+                    de tu sector y mantén conversaciones directas con tus contactos.
+                </p>
+
+                <h3>Características principales</h3>
+                <ul class="features-list">
+                    <li>✓ Perfil personalizable con bio y enlaces sociales</li>
+                    <li>✓ Agregación de Instagram, Twitter, LinkedIn, GitHub y más</li>
+                    <li>✓ Sistema de contactos con solicitudes y código de amigo</li>
+                    <li>✓ Mensajería privada entre contactos con indicador de lectura</li>
+                    <li>✓ Calendario compartido con eventos y participantes</li>
+                    <li>✓ Google OAuth para registro/login con un clic</li>
+                </ul>
+
+                <h3 style="margin-top:2rem;">Tecnologías</h3>
+                <div class="tech-grid">
+                    <div class="tech-item">🐍 Python + Flask</div>
+                    <div class="tech-item">🗄️ MySQL (InnoDB)</div>
+                    <div class="tech-item">🔐 Flask-Login + OAuth 2.0</div>
+                    <div class="tech-item">🎨 CSS3 + Variables Custom</div>
+                    <div class="tech-item">⚡ JavaScript Vanilla</div>
+                    <div class="tech-item">📄 Jinja2 Templates</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="db-section">
+            <div class="container">
+                <h2>📊 Esquema de Base de Datos</h2>
+                <p style="margin-bottom:2rem;color:var(--gray);">5 tablas relacionales con integridad referencial en MySQL InnoDB</p>
+                <div class="schema-grid">
+                    <div class="schema-table">
+                        <h4>users</h4>
+                        <ul>
+                            <li><strong>id</strong> INT PK AUTO_INCREMENT</li>
+                            <li><strong>username</strong> VARCHAR(80) UNIQUE</li>
+                            <li><strong>email</strong> VARCHAR(120) UNIQUE</li>
+                            <li><strong>password_hash</strong> VARCHAR(200)</li>
+                            <li><strong>friend_code</strong> VARCHAR(12) UNIQUE</li>
+                            <li><strong>full_name</strong> VARCHAR(100)</li>
+                            <li><strong>bio</strong> TEXT</li>
+                            <li><strong>avatar</strong> VARCHAR(200)</li>
+                            <li><strong>google_id</strong> VARCHAR(100)</li>
+                        </ul>
+                    </div>
+                    <div class="schema-table">
+                        <h4>social_links</h4>
+                        <ul>
+                            <li><strong>id</strong> INT PK AUTO_INCREMENT</li>
+                            <li><strong>user_id</strong> INT FK → users</li>
+                            <li><strong>platform</strong> VARCHAR(50)</li>
+                            <li><strong>username</strong> VARCHAR(100)</li>
+                            <li><strong>url</strong> VARCHAR(500)</li>
+                            <li><strong>is_visible</strong> BOOLEAN</li>
+                            <li><strong>display_order</strong> INT</li>
+                        </ul>
+                    </div>
+                    <div class="schema-table">
+                        <h4>contacts</h4>
+                        <ul>
+                            <li><strong>id</strong> INT PK AUTO_INCREMENT</li>
+                            <li><strong>user_id</strong> INT FK → users</li>
+                            <li><strong>contact_id</strong> INT FK → users</li>
+                            <li><strong>status</strong> ENUM('pending','accepted','blocked')</li>
+                            <li><strong>created_at</strong> TIMESTAMP</li>
+                            <li><strong>accepted_at</strong> TIMESTAMP NULL</li>
+                        </ul>
+                    </div>
+                    <div class="schema-table">
+                        <h4>messages</h4>
+                        <ul>
+                            <li><strong>id</strong> INT PK AUTO_INCREMENT</li>
+                            <li><strong>sender_id</strong> INT FK → users</li>
+                            <li><strong>receiver_id</strong> INT FK → users</li>
+                            <li><strong>content</strong> TEXT</li>
+                            <li><strong>is_read</strong> BOOLEAN</li>
+                            <li><strong>read_at</strong> TIMESTAMP NULL</li>
+                        </ul>
+                    </div>
+                    <div class="schema-table">
+                        <h4>calendar_events</h4>
+                        <ul>
+                            <li><strong>id</strong> INT PK AUTO_INCREMENT</li>
+                            <li><strong>user_id</strong> INT FK → users</li>
+                            <li><strong>title</strong> VARCHAR(200)</li>
+                            <li><strong>start_datetime</strong> DATETIME</li>
+                            <li><strong>end_datetime</strong> DATETIME</li>
+                            <li><strong>event_type</strong> ENUM</li>
+                            <li><strong>color</strong> VARCHAR(7)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 eID — Tu tarjeta de visita digital</p>
+            <p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.7;">
+                Proyecto DAM · <a href="https://github.com/MutenRos/eID" style="color:rgba(255,255,255,0.8);">GitHub</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
